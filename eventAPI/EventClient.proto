@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package EventClient;
+
+message EventObj {
+  // unique ID for client
+  string clientID = 1;
+  // to specify what type of event they are sending
+  string eventID = 2;
+  // time value
+  uint64 timeSinceEpoch = 3;
+  // all data and any other sort of tags
+  map<string, string> keyValues = 4;
+}
+
+message EventResp {
+  string response = 1;
+}
+
+// Event Sender definition
+service EventSender {
+  // Sends the event and does not get anything back
+  rpc SendEvent (EventObj) returns (EventResp) {}
+}
