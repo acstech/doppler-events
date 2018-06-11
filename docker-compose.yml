@@ -2,7 +2,7 @@ version: '3'
 
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:latest
+    image: confluentinc/cp-zookeeper:4.1.1
     hostname: zookeeper
     ports:
       - "32181:32181"
@@ -13,7 +13,7 @@ services:
       - ./data/zookeeper:/var/lib/zookeeper/data
       
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:4.1.1
     hostname: kafka
     depends_on:
       - zookeeper
@@ -28,7 +28,7 @@ services:
       - ./data/kafka:/var/lib/kafka/data
 
   schema_registry:
-    image: confluentinc/cp-schema-registry:latest
+    image: confluentinc/cp-schema-registry:4.1.1
     hostname: schema_registry
     depends_on:
       - zookeeper
@@ -50,7 +50,7 @@ services:
       - ./data/influx:/var/lib/influxdb
   
   kafka_connect:
-    image: datamountaineer/kafka-connect-influxdb:latest
+    image: datamountaineer/kafka-connect-influxdb:1.1.0
     hostname: kafka_connect
     depends_on:
       - zookeeper
