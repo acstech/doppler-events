@@ -1,24 +1,36 @@
+// Event API Server
+//
+//
+//
+//
+
 package main
 
 import (
-  "time"
-  "log"
-  "net"
-  "golang.org/x/net/context"
-	"google.golang.org/grpc"
+	"fmt"
+	"log"
+	"net"
+
 	pb "github.com/acstech/doppler-events/eventAPI"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 const (
-  // addr = "10.22.97.107:8080"
-  addr = ":8080"
+	// addr = "10.22.97.107:8080"
+	addr = ":8080"
 )
 
 type server struct{}
 
 func (s *server) SendEvent(ctx context.Context, in *pb.EventObj) (*pb.EventResp, error) {
-  return &pb.EventResp{Response: "\nClient ID: " + in.ClientID + "\n" + "Event ID: " + in.EventID + "\nDate: " + time.Unix(int64(in.TimeSinceEpoch), 0).String() +"\nLongitude: " + in.KeyValues["lon"] + "\nLatitude: " + in.KeyValues["lat"]}, nil
+	fmt.Printf("ClientID: " + in.ClientID + "\nEventID: " + in.EventID + "\n")
+	for key, value := range in.DataSet {
+		fmt.Println("DataType: ", key, "DataValue:", value)
+	}
+	fmt.Println()
+	return &pb.EventResp{Response: "Client ID: " + in.ClientID}, nil
 }
 
 func main() {
