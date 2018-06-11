@@ -1,0 +1,7 @@
+# Directory data to ignore
+data/influx/*
+data/kafka/*
+data/zookeeper/*
+!data/influx/.gitkeep
+!data/kafka/.gitkeep
+!data/zookeeper/.gitkeep
