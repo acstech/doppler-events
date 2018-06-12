@@ -14,6 +14,7 @@ import (
 	"os"
 
 	pb "github.com/acstech/doppler-events/eventAPI"
+	"github.com/golang/protobuf/ptypes"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -28,7 +29,11 @@ type server struct{}
 
 func (s *server) SendEvent(ctx context.Context, in *pb.EventObj) (*pb.EventResp, error) {
 	//printing ClientID and EventID to server console
-	fmt.Printf("ClientID: " + in.ClientID + "\nEventID: " + in.EventID + "\n")
+	ts, err := ptypes.Timestamp(in.TimeSinceEpoch)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("ClientID: " + in.ClientID + "\nEventID: " + in.EventID + "\nDate: " + ts.String() + "\n")
 
 	//printing DataSet to server console
 	for key, value := range in.DataSet {
