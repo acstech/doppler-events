@@ -5,3 +5,5 @@ data/zookeeper/*
 !data/influx/.gitkeep
 !data/kafka/.gitkeep
 !data/zookeeper/.gitkeep
+
+.DS_store
