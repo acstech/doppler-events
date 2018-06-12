@@ -1,24 +1,55 @@
+// Event API Server
+//
+//
+//
+//
+
 package main
 
 import (
-  "time"
-  "log"
-  "net"
-  "golang.org/x/net/context"
-	"google.golang.org/grpc"
+	"encoding/json"
+	"fmt"
+	"log"
+	"net"
+	"os"
+
 	pb "github.com/acstech/doppler-events/eventAPI"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 const (
-  // addr = "10.22.97.107:8080"
-  addr = ":8080"
+	// addr = "10.22.97.107:8080"
+	addr = ":8080"
 )
 
 type server struct{}
 
 func (s *server) SendEvent(ctx context.Context, in *pb.EventObj) (*pb.EventResp, error) {
-  return &pb.EventResp{Response: "\nClient ID: " + in.ClientID + "\n" + "Event ID: " + in.EventID + "\nDate: " + time.Unix(int64(in.TimeSinceEpoch), 0).String() +"\nLongitude: " + in.KeyValues["lon"] + "\nLatitude: " + in.KeyValues["lat"]}, nil
+	//printing ClientID and EventID to server console
+	fmt.Printf("ClientID: " + in.ClientID + "\nEventID: " + in.EventID + "\n")
+
+	//printing DataSet to server console
+	for key, value := range in.DataSet {
+		fmt.Println("DataType: ", key, "DataValue:", value)
+	}
+	fmt.Println()
+
+	//method to format to JSON
+	bytes, err := json.Marshal(in) //Marshal returns the ascii presentation of the data
+	if err != nil {
+		fmt.Println("Format to JSON Error")
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+	//print JSON format of
+	fmt.Println(string(bytes))
+
+	//method to send to Kafka
+
+	//return response to client
+	return &pb.EventResp{Response: "Success! Open heatmap at ____ to see results"}, nil
 }
 
 func main() {

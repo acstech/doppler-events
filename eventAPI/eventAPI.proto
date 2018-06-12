@@ -1,3 +1,8 @@
+// Event API Proto
+//
+//
+// compile: protoc -I eventAPI/ eventAPI/eventAPI.proto --go_out=plugins=grpc:eventAPI/
+
 syntax = "proto3";
 
 package EventClient;
@@ -7,10 +12,9 @@ message EventObj {
   string clientID = 1;
   // to specify what type of event they are sending
   string eventID = 2;
-  // time value
-  uint64 timeSinceEpoch = 3;
   // all data and any other sort of tags
-  map<string, string> keyValues = 4;
+  map<string, string> dataSet = 3;
+
 }
 
 message EventResp {

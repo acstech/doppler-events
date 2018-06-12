@@ -5,3 +5,6 @@ data/zookeeper/*
 !data/influx/.gitkeep
 !data/kafka/.gitkeep
 !data/zookeeper/.gitkeep
+
+# general data to ignore
+.DS_store
