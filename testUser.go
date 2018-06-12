@@ -8,7 +8,7 @@
 package main
 
 import (
-	c "github.com/acstech/doppler-events/eventAPI_client"
+	c "github.com/acstech/doppler-events/eventAPI_client" //c meaning client call
 )
 
 func main() {
@@ -22,11 +22,12 @@ func main() {
 	dataName2 := "lat"
 	dataValue2 := "87687"
 
+	//create map of data
 	dataSet := make(map[string]string)
 	dataSet[dataName1] = dataValue1
 	dataSet[dataName2] = dataValue2
 
-	//call to API
+	//call to API, requires clientID, eventID, and a dataSet
 	c.DisplayData(&clientID, &eventID, &dataSet)
 
 }
