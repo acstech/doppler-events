@@ -1,5 +1,5 @@
 // Event API Proto
-//
+// About: defines gRPC message format for EventAPI
 //
 // compile: protoc -I eventAPI/ eventAPI/eventAPI.proto --go_out=plugins=grpc:eventAPI/
 
@@ -9,6 +9,7 @@ package EventClient;
 
 import "google/protobuf/timestamp.proto";
 
+// Event Receive message format
 message EventObj {
   // unique ID for client
   string clientID = 1;
@@ -20,6 +21,7 @@ message EventObj {
   map<string, string> dataSet = 4;
 }
 
+// Event Response message format
 message EventResp {
   string response = 1;
 }
