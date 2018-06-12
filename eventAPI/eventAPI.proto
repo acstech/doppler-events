@@ -7,14 +7,17 @@ syntax = "proto3";
 
 package EventClient;
 
+import "google/protobuf/timestamp.proto";
+
 message EventObj {
   // unique ID for client
   string clientID = 1;
   // to specify what type of event they are sending
   string eventID = 2;
+  // time value
+  google.protobuf.Timestamp timeSinceEpoch = 3;
   // all data and any other sort of tags
-  map<string, string> dataSet = 3;
-
+  map<string, string> dataSet = 4;
 }
 
 message EventResp {
