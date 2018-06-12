@@ -11,7 +11,11 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"os"	"golang.org/x/net/context"
+	"os"
+
+	pb "github.com/acstech/doppler-events/eventAPI"
+	"github.com/golang/protobuf/ptypes"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -29,7 +33,7 @@ func (s *server) SendEvent(ctx context.Context, in *pb.EventObj) (*pb.EventResp,
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("ClientID: " + in.ClientID + "\nEventID: " + in.EventID + "\nDate: " + ts.String() "\n")
+	fmt.Printf("ClientID: " + in.ClientID + "\nEventID: " + in.EventID + "\nDate: " + ts.String() + "\n")
 
 	//printing DataSet to server console
 	for key, value := range in.DataSet {
