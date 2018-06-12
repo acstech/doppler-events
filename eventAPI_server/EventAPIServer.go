@@ -30,6 +30,8 @@ func (s *server) SendEvent(ctx context.Context, in *pb.EventObj) (*pb.EventResp,
 		fmt.Println("DataType: ", key, "DataValue:", value)
 	}
 	fmt.Println()
+	//method to format to JSON
+	//method to send to Kafka
 	return &pb.EventResp{Response: "Client ID: " + in.ClientID}, nil
 }
 
