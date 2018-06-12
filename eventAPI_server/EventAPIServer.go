@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	addr = "10.22.97.107:8080"
-	// addr = ":8080"
+	// addr = "10.22.97.107:8080"
+	addr = ":8080"
 )
 
 type server struct{}
