@@ -11,9 +11,9 @@ import (
 	"log"
 	"net"
 	"os"
+	"strconv"
 
 	pb "github.com/acstech/doppler-events/eventAPI"
-	"github.com/golang/protobuf/ptypes"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
@@ -30,32 +30,35 @@ type server struct{}
 // SendEvent is the function that EventAPIClient.go calls in order to send data to the server
 // the data is then processed, formatted to JSON, and send to Kafka Connect
 func (s *server) SendEvent(ctx context.Context, in *pb.EventObj) (*pb.EventResp, error) {
-	//get the current time
-	ts, err := ptypes.Timestamp(in.TimeSinceEpoch)
-	if err != nil {
-		return nil, err
-	}
 
-	//printing ClientID and EventID to server console for testing
-	fmt.Printf("ClientID: " + in.ClientID + "\nEventID: " + in.EventID + "\nDate: " + ts.String() + "\n")
+	//converting protobuf timestap to seconds in unix time to a string
+	ts := strconv.FormatInt(in.TimeSinceEpoch.GetSeconds(), 10)
 
-	//printing DataSet to server console for testing
+	//convert EventObj to map in order to flatten (needed to flatten for influxDB)
+	//intialize flatJSONMap as placeholder for marshal
+	flatJSONMap := make(map[string]string)
+	//will always have clientID, eventID, timeSinceEpoch
+	flatJSONMap["clientID"] = in.ClientID
+	flatJSONMap["eventID"] = in.EventID
+	flatJSONMap["timeSinceEpoch"] = ts
+	//loop across dataSet map and add key and value to flatJSON
 	for key, value := range in.DataSet {
-		fmt.Println("DataType: ", key, "DataValue:", value)
+		flatJSONMap[key] = value
 	}
-	fmt.Println()
 
 	//format to JSON
-	bytes, err := json.Marshal(in) //Marshal returns the ascii presentation of the data
+	JSONbytes, err := json.Marshal(flatJSONMap) //Marshal returns the ascii presentation of the data
 	if err != nil {
 		fmt.Println("Format to JSON Error")
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
-	//print JSON format of dataSet to console for testing
-	fmt.Println(string(bytes))
+
+	//print JSON to server console for testing
+	fmt.Println(string(JSONbytes))
 
 	//NEEDED method to send to Kafka
+	// sendToKafka(string(JSONbytes))
 
 	//return response to client
 	return &pb.EventResp{Response: "Success! Open heatmap at ____ to see results"}, nil
