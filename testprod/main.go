@@ -1,15 +1,16 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"time"
 
-	"strconv"
-
 	"github.com/Shopify/sarama"
+	"github.com/davecgh/go-spew/spew"
 )
 
 func main() {
@@ -22,7 +23,7 @@ func main() {
 	// The level of acknowledgement reliability needed from the broker.
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
 	config.Producer.RequiredAcks = sarama.WaitForAll
-	brokers := []string{"localhost:29092"}
+	brokers := []string{"localhost:9092"}
 	producer, err := sarama.NewAsyncProducer(brokers, config)
 	if err != nil {
 		// Should not reach here
@@ -39,6 +40,13 @@ func main() {
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt)
 
+	themessage := &message{
+		ClientID: "abcd",
+		EventID:  "theIDevent",
+		Lat:      "34.1954",
+		Long:     "-79.7626",
+	}
+
 	var enqueued, errors int
 	doneCh := make(chan struct{})
 	go func() {
@@ -46,11 +54,16 @@ func main() {
 
 			time.Sleep(500 * time.Millisecond)
 
-			strTime := strconv.Itoa(int(time.Now().Unix()))
+			themessage.TimeSinceEpoch = time.Now().Unix()
+			buf := new(bytes.Buffer)
+			err := json.NewEncoder(buf).Encode(themessage)
+			if err != nil {
+				panic(err)
+			}
+			spew.Dump(buf.String())
 			msg := &sarama.ProducerMessage{
 				Topic: "influx-topic",
-				Key:   sarama.StringEncoder(strTime),
-				Value: sarama.StringEncoder("Something Cool"),
+				Value: sarama.ByteEncoder(buf.Bytes()),
 			}
 			select {
 			case producer.Input() <- msg:
@@ -67,4 +80,12 @@ func main() {
 
 	<-doneCh
 	log.Printf("Enqueued: %d; errors: %d\n", enqueued, errors)
+}
+
+type message struct {
+	Lat            string `json:"lat"`
+	Long           string `json:"lon"`
+	TimeSinceEpoch int64  `json:"timeSinceEpoch"`
+	ClientID       string `json:"clientID"`
+	EventID        string `json:"eventID"`
 }

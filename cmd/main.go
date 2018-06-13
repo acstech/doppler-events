@@ -17,7 +17,7 @@ func main() {
 	config.Consumer.Return.Errors = true
 	//config.Metadata.Full = false
 
-	brokers := []string{"localhost:29092"}
+	brokers := []string{"localhost:9092"}
 
 	// Create new consumer
 	master, err := sarama.NewConsumer(brokers, config)
