@@ -1,8 +1,8 @@
 #!/bin/bash
-for i in {1..100}
+for i in {1..2}
 do
-    echo $i"\n"
+    echo $i
     j=$(($i%10))
     docker-compose exec influx_db \
-        curl -i -XPOST 'http://localhost:8086/write?db=mydb' --data-binary "server,host=$j,region=us-west value=0.64"
+        curl -i -XPOST 'http://influx_db:8086/write?db=doppler' -d "influxTest,name=server$j,region=us-west value=$j"
 done

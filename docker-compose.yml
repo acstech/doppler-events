@@ -5,7 +5,7 @@ services:
     image: confluentinc/cp-zookeeper:4.1.1
     hostname: zookeeper
     ports:
-      - "32181:32181"
+      - "32181:2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 32181
       ZOOKEEPER_TICK_TIME: 2000
@@ -18,7 +18,7 @@ services:
     depends_on:
       - zookeeper
     ports:
-    - "29092:29092"
+    - "29092:9092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:32181
@@ -91,4 +91,4 @@ services:
       CONNECTOR_CONNECT_INFLUX_DB: "doppler"
       CONNECTOR_CONNECT_INFLUX_USERNAME: root
       CONNECTOR_CONNECT_INFLUX_PASSWORD: "root"
-      CONNECTOR_CONNECT_INFLUX_KCQL: "INSERT INTO influxMeasure SELECT * FROM \"influx-topic\" WITHTIMESTAMP sys_time()"
+      CONNECTOR_CONNECT_INFLUX_KCQL: "INSERT INTO \"dopplerDataHistory\" SELECT \"lat\", \"lon\" FROM \"influx-topic\" WITHTIMESTAMP timeSinceEpoch WITHTAG(\"clientID\", \"eventID\")"
