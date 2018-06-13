@@ -32,15 +32,15 @@ type server struct{}
 func (s *server) SendEvent(ctx context.Context, in *pb.EventObj) (*pb.EventResp, error) {
 
 	//converting protobuf timestap to seconds in unix time to a string
-	ts := strconv.FormatInt(in.TimeSinceEpoch.GetSeconds(), 10)
+	ts := strconv.FormatInt(in.DateTime.GetSeconds(), 10)
 
 	//convert EventObj to map in order to flatten (needed to flatten for influxDB)
 	//intialize flatJSONMap as placeholder for marshal
 	flatJSONMap := make(map[string]string)
-	//will always have clientID, eventID, timeSinceEpoch
-	flatJSONMap["clientID"] = in.ClientID
-	flatJSONMap["eventID"] = in.EventID
-	flatJSONMap["timeSinceEpoch"] = ts
+	//will always have clientID, eventID, dateTime
+	flatJSONMap["clientID"] = in.ClientId
+	flatJSONMap["eventID"] = in.EventId
+	flatJSONMap["dateTime"] = ts
 	//loop across dataSet map and add key and value to flatJSON
 	for key, value := range in.DataSet {
 		flatJSONMap[key] = value
