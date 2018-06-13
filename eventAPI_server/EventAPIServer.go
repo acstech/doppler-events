@@ -31,13 +31,13 @@ type server struct{}
 // the data is then processed, formatted to JSON, and send to Kafka Connect
 func (s *server) SendEvent(ctx context.Context, in *pb.EventObj) (*pb.EventResp, error) {
 	//get the current time
-	ts, err := ptypes.Timestamp(in.TimeSinceEpoch)
+	ts, err := ptypes.Timestamp(in.DateTime)
 	if err != nil {
 		return nil, err
 	}
 
 	//printing ClientID and EventID to server console for testing
-	fmt.Printf("ClientID: " + in.ClientID + "\nEventID: " + in.EventID + "\nDate: " + ts.String() + "\n")
+	fmt.Printf("ClientID: " + in.ClientId + "\nEventID: " + in.EventId + "\nDate: " + ts.String() + "\n")
 
 	//printing DataSet to server console for testing
 	for key, value := range in.DataSet {

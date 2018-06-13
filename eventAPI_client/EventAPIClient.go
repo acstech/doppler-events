@@ -51,7 +51,7 @@ func DisplayData(clientID *string, eventID *string, dataSet *map[string]string) 
 	defer cancel()
 
 	//send event data to server, save response
-	r, err := c.SendEvent(ctx, &pb.EventObj{ClientID: *clientID, EventID: *eventID, TimeSinceEpoch: ptypes.TimestampNow(), DataSet: *dataSet})
+	r, err := c.SendEvent(ctx, &pb.EventObj{ClientId: *clientID, EventId: *eventID, DateTime: ptypes.TimestampNow(), DataSet: *dataSet})
 	if err != nil {
 		log.Fatalf("could not do anything: %v", err)
 	}
