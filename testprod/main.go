@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/Shopify/sarama"
-	"github.com/davecgh/go-spew/spew"
 )
 
 func main() {
@@ -60,7 +59,6 @@ func main() {
 			if err != nil {
 				panic(err)
 			}
-			spew.Dump(buf.String())
 			msg := &sarama.ProducerMessage{
 				Topic: "influx-topic",
 				Value: sarama.ByteEncoder(buf.Bytes()),
