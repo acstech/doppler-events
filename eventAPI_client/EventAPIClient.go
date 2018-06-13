@@ -30,7 +30,7 @@ import (
 
 //intialize address of Kafka connect
 const (
-	address = "localhost:8080"
+	address = "localhost:8080" //TODO: <- this isn't kafka's address?
 	// address = "kafka IP:Port"
 )
 

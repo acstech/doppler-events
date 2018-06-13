@@ -11,7 +11,10 @@ import (
 	"log"
 	"net"
 	"os"
+	"os/signal"
+	"time"
 
+	"github.com/Shopify/sarama"
 	pb "github.com/acstech/doppler-events/eventAPI"
 	ptype "github.com/golang/protobuf/ptypes"
 	"golang.org/x/net/context"
@@ -25,7 +28,59 @@ const (
 )
 
 //struct to hold parameters for server
-type server struct{}
+type server struct {
+	theProd sarama.AsyncProducer
+}
+
+func newProducer() (sarama.AsyncProducer, error) {
+	sarama.Logger = log.New(os.Stdout, "[sarama] ", log.LstdFlags)
+	// Setup configuration
+	config := sarama.NewConfig()
+	config.ClientID = "1"
+	// Return specifies what channels will be populated.
+	// If they are set to true, you must read from
+	config.Producer.Return.Successes = true
+	// The level of acknowledgement reliability needed from the broker.
+	config.Producer.Partitioner = sarama.NewRandomPartitioner
+	config.Producer.RequiredAcks = sarama.WaitForAll
+	brokers := []string{"localhost:9092"}
+	producer, err := sarama.NewAsyncProducer(brokers, config)
+	if err != nil {
+		// Should not reach here
+		return nil, err
+	}
+	return producer, nil
+
+}
+
+func (prod *server) sendToQueue(JSONboi []byte) {
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt)
+
+	var enqueued, errors int
+	doneCh := make(chan struct{})
+	go func() {
+		time.Sleep(1000 * time.Millisecond)
+
+		msg := &sarama.ProducerMessage{
+			Topic: "influx-topic",
+			Value: sarama.ByteEncoder(JSONboi),
+		}
+		select {
+		case prod.theProd.Input() <- msg:
+			enqueued++
+			fmt.Println("Produce message")
+		case err := <-prod.theProd.Errors():
+			errors++
+			fmt.Println("Failed to produce message:", err)
+		case <-signals:
+			doneCh <- struct{}{}
+		}
+	}()
+
+	<-doneCh
+	log.Printf("Enqueued: %d; errors: %d\n", enqueued, errors)
+}
 
 // SendEvent is the function that EventAPIClient.go calls in order to send data to the server
 // the data is then processed, formatted to JSON, and send to Kafka Connect
@@ -59,7 +114,8 @@ func (s *server) SendEvent(ctx context.Context, in *pb.EventObj) (*pb.EventResp,
 	fmt.Println(string(JSONbytes))
 
 	//NEEDED method to send to Kafka
-	// sendToKafka(string(JSONbytes))
+	s.sendToQueue(JSONbytes)
+	//sendToQueue(JSONbytes)
 
 	//return response to client
 	return &pb.EventResp{Response: "Success! Open heatmap at ____ to see results"}, nil
@@ -73,8 +129,23 @@ func main() {
 	}
 	//initialize server
 	s := grpc.NewServer()
+	prod, err := newProducer()
+	if err != nil {
+		panic(err)
+	}
+
+	defer func() {
+		if err := prod.Close(); err != nil {
+			// Should not reach here
+			panic(err)
+		}
+	}()
+
+	serve2 := server{
+		theProd: prod,
+	}
 	//register server to grpc
-	pb.RegisterEventSenderServer(s, &server{})
+	pb.RegisterEventSenderServer(s, &serve2)
 	// Register reflection service on gRPC server for back and forth communication. Kept for future use if necessary
 	// reflection.Register(s)
 

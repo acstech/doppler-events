@@ -16,6 +16,7 @@ func main() {
 	sarama.Logger = log.New(os.Stdout, "[sarama] ", log.LstdFlags)
 	// Setup configuration
 	config := sarama.NewConfig()
+	config.ClientID = "1"
 	// Return specifies what channels will be populated.
 	// If they are set to true, you must read from
 	config.Producer.Return.Successes = true
@@ -40,7 +41,7 @@ func main() {
 	signal.Notify(signals, os.Interrupt)
 
 	themessage := &message{
-		ClientID: "abcd",
+		ClientID: "drop",
 		EventID:  "theIDevent",
 		Lat:      "34.1954",
 		Long:     "-79.7626",
@@ -50,8 +51,8 @@ func main() {
 	doneCh := make(chan struct{})
 	go func() {
 		for {
-
-			time.Sleep(500 * time.Millisecond)
+			fmt.Println("thinga")
+			time.Sleep(1000 * time.Millisecond)
 
 			themessage.TimeSinceEpoch = time.Now().Unix()
 			buf := new(bytes.Buffer)
