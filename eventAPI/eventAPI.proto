@@ -12,13 +12,13 @@ import "google/protobuf/timestamp.proto";
 // Event Receive message format
 message EventObj {
   // unique ID for client
-  string clientID = 1;
+  string client_id = 1;
   // to specify what type of event they are sending
-  string eventID = 2;
-  // time value
-  google.protobuf.Timestamp timeSinceEpoch = 3;
+  string event_id = 2;
+  // time value (Unix time)
+  google.protobuf.Timestamp date_time = 3;
   // all data and any other sort of tags
-  map<string, string> dataSet = 4;
+  map<string, string> data_set = 4;
 }
 
 // Event Response message format
