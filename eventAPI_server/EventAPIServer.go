@@ -11,8 +11,6 @@ import (
 	"log"
 	"net"
 	"os"
-	"os/signal"
-	"time"
 
 	"github.com/Shopify/sarama"
 	pb "github.com/acstech/doppler-events/eventAPI"
@@ -45,9 +43,6 @@ func newProducer() (sarama.AsyncProducer, error) {
 	// Setup configuration
 	config := sarama.NewConfig()
 	config.ClientID = "1"
-	// Return specifies what channels will be populated.
-	// If they are set to true, you must read from
-	config.Producer.Return.Successes = true
 	// The level of acknowledgement reliability needed from the broker.
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
 	config.Producer.RequiredAcks = sarama.WaitForAll
@@ -62,31 +57,38 @@ func newProducer() (sarama.AsyncProducer, error) {
 }
 
 func (prod *server) sendToQueue(JSONob []byte) {
-	signals := make(chan os.Signal, 1)
-	signal.Notify(signals, os.Interrupt)
+	/*	signals := make(chan os.Signal, 1)
+		signal.Notify(signals, os.Interrupt)*/
+
+	//	var wait sync.WaitGroup
+	//	wait.Add(1)
 
 	var enqueued, errors int
-	doneCh := make(chan struct{})
-	go func() {
-		time.Sleep(1000 * time.Millisecond)
 
-		msg := &sarama.ProducerMessage{
-			Topic: "influx-topic",
-			Value: sarama.ByteEncoder(JSONob),
-		}
-		select {
-		case prod.theProd.Input() <- msg:
-			enqueued++
-			fmt.Println("Produce message")
-		case err := <-prod.theProd.Errors():
-			errors++
-			fmt.Println("Failed to produce message:", err)
-		case <-signals:
-			doneCh <- struct{}{}
+	//	go func() {
+
+	//		defer wait.Done()
+	//time.Sleep(1000 * time.Millisecond)
+
+	msg := &sarama.ProducerMessage{
+		Topic: "influx-topic",
+		Value: sarama.ByteEncoder(JSONob),
+	}
+
+	select {
+	case prod.theProd.Input() <- msg:
+		enqueued++
+		fmt.Println("Produce message")
+	case err := <-prod.theProd.Errors():
+		errors++
+		fmt.Println("Failed to produce message:", err)
+	}
+	/*		case <-signals:
+			break producerLoop
 		}
 	}()
 
-	<-doneCh
+	wait.Wait()*/
 	log.Printf("Enqueued: %d; errors: %d\n", enqueued, errors)
 }
 
@@ -111,7 +113,7 @@ func (s *server) SendEvent(ctx context.Context, in *pb.EventObj) (*pb.EventResp,
 	//will always have clientID, eventID, dateTime
 	flatJSONMap["clientID"] = in.ClientId
 	flatJSONMap["eventID"] = in.EventId
-	flatJSONMap["timeSinceEpoch"] = in.DateTime.GetSeconds()
+	flatJSONMap["timeSinceEpoch"] = ts
 	//flatJSONMap["timeSinceEpoch"] = ts
 	//loop across dataSet map and add key and value to flatJSON
 	for key, value := range in.DataSet {

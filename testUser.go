@@ -14,7 +14,7 @@ import (
 func main() {
 
 	//sample data
-	clientID := "klay"
+	clientID := "test2"
 	eventID := "Sign In"
 
 	dataName1 := "lon"

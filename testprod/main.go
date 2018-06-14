@@ -41,10 +41,8 @@ func main() {
 	signal.Notify(signals, os.Interrupt)
 
 	themessage := &message{
-		ClientID: "drop",
+		ClientID: "ranger",
 		EventID:  "theIDevent",
-		Lat:      "34.1954",
-		Long:     "-79.7626",
 	}
 
 	var enqueued, errors int
@@ -81,9 +79,7 @@ func main() {
 }
 
 type message struct {
-	Lat            string `json:"lat"`
-	Long           string `json:"lon"`
-	TimeSinceEpoch int64  `json:"timeSinceEpoch"`
+	TimeSinceEpoch string `json:"timeSinceEpoch"`
 	ClientID       string `json:"clientID"`
 	EventID        string `json:"eventID"`
 }
