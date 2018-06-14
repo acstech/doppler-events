@@ -41,7 +41,7 @@ func main() {
 	signal.Notify(signals, os.Interrupt)
 
 	themessage := &message{
-		ClientID: "ranger",
+		ClientID: "drop",
 		EventID:  "theIDevent",
 	}
 
