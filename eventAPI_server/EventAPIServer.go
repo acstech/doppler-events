@@ -96,7 +96,7 @@ func (s *server) SendEvent(ctx context.Context, in *pb.EventObj) (*pb.EventResp,
 	//will always have clientID, eventID, dateTime
 	flatJSONMap["clientID"] = in.ClientId
 	flatJSONMap["eventID"] = in.EventId
-	flatJSONMap["dateTime"] = ts
+	flatJSONMap["timeSinceEpoch"] = ts
 	//loop across dataSet map and add key and value to flatJSON
 	for key, value := range in.DataSet {
 		flatJSONMap[key] = value
