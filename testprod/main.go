@@ -51,7 +51,6 @@ func main() {
 	doneCh := make(chan struct{})
 	go func() {
 		for {
-			fmt.Println("thinga")
 			time.Sleep(1000 * time.Millisecond)
 
 			themessage.TimeSinceEpoch = time.Now().Unix()

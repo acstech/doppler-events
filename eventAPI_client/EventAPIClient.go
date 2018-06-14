@@ -30,7 +30,7 @@ import (
 
 //intialize address of Kafka connect
 const (
-	address = "localhost:8080" //TODO: <- this isn't kafka's address?
+	address = "localhost:8080"
 	// address = "kafka IP:Port"
 )
 
@@ -51,7 +51,7 @@ func DisplayData(clientID *string, eventID *string, dataSet *map[string]string) 
 	defer cancel()
 
 	//send event data to server, save response
-	r, err := c.SendEvent(ctx, &pb.EventObj{ClientId: *clientID, EventId: *eventID, timeSinceEpoch: ptypes.TimestampNow(), DataSet: *dataSet})
+	r, err := c.SendEvent(ctx, &pb.EventObj{ClientId: *clientID, EventId: *eventID, DateTime: ptypes.TimestampNow(), DataSet: *dataSet})
 	if err != nil {
 		log.Fatalf("could not do anything: %v", err)
 	}

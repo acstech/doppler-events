@@ -21,6 +21,14 @@ import (
 	"google.golang.org/grpc"
 )
 
+type NewEvent struct {
+	TimeSinceEpoch int64  `json:"timeSinceEpoch"`
+	ClientID       string `json:"clientID"`
+	EventID        string `json:"eventID"`
+	Long           string `json:"lon"`
+	Lat            string `json:"lat"`
+}
+
 //intialize addressess of where server listens with format IP:Port
 const (
 	// address = "10.22.97.107:8080"
@@ -53,7 +61,7 @@ func newProducer() (sarama.AsyncProducer, error) {
 
 }
 
-func (prod *server) sendToQueue(JSONboi []byte) {
+func (prod *server) sendToQueue(JSONob []byte) {
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt)
 
@@ -64,7 +72,7 @@ func (prod *server) sendToQueue(JSONboi []byte) {
 
 		msg := &sarama.ProducerMessage{
 			Topic: "influx-topic",
-			Value: sarama.ByteEncoder(JSONboi),
+			Value: sarama.ByteEncoder(JSONob),
 		}
 		select {
 		case prod.theProd.Input() <- msg:
@@ -93,10 +101,18 @@ func (s *server) SendEvent(ctx context.Context, in *pb.EventObj) (*pb.EventResp,
 	//convert EventObj to map in order to flatten (needed to flatten for influxDB)
 	//intialize flatJSONMap as placeholder for marshal
 	flatJSONMap := make(map[string]string)
+	/*	newJSONMap := &NewEvent{
+		ClientID:       in.ClientId,
+		EventID:        in.EventId,
+		TimeSinceEpoch: ts,
+		Long:           "asdf",
+		Lat:            "asdf",
+	}*/
 	//will always have clientID, eventID, dateTime
 	flatJSONMap["clientID"] = in.ClientId
 	flatJSONMap["eventID"] = in.EventId
-	flatJSONMap["timeSinceEpoch"] = ts
+	flatJSONMap["timeSinceEpoch"] = in.DateTime.GetSeconds()
+	//flatJSONMap["timeSinceEpoch"] = ts
 	//loop across dataSet map and add key and value to flatJSON
 	for key, value := range in.DataSet {
 		flatJSONMap[key] = value
@@ -110,12 +126,21 @@ func (s *server) SendEvent(ctx context.Context, in *pb.EventObj) (*pb.EventResp,
 		os.Exit(1)
 	}
 
-	//print JSON to server console for testing
-	fmt.Println(string(JSONbytes))
-
+	/*newJSONbytes, err := json.Marshal(newJSONMap)
+	if err != nil {
+		fmt.Println("Format to JSON Error")
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+	buf := new(bytes.Buffer)
+	err = json.NewEncoder(buf).Encode(newJSONMap)
+	if err != nil {
+		panic(err)
+	}
+	*/
 	//NEEDED method to send to Kafka
 	s.sendToQueue(JSONbytes)
-	//sendToQueue(JSONbytes)
+	//s.sendToQueue(newJSONbytes)
 
 	//return response to client
 	return &pb.EventResp{Response: "Success! Open heatmap at ____ to see results"}, nil
