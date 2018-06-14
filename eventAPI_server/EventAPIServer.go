@@ -11,9 +11,9 @@ import (
 	"log"
 	"net"
 	"os"
-	"strconv"
 
 	pb "github.com/acstech/doppler-events/eventAPI"
+	ptype "github.com/golang/protobuf/ptypes"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
@@ -32,7 +32,8 @@ type server struct{}
 func (s *server) SendEvent(ctx context.Context, in *pb.EventObj) (*pb.EventResp, error) {
 
 	//converting protobuf timestap to seconds in unix time to a string
-	ts := strconv.FormatInt(in.DateTime.GetSeconds(), 10)
+	// ts := strconv.FormatInt(in.DateTime.GetSeconds(), 10)
+	ts := ptype.TimestampString(in.DateTime)
 
 	//convert EventObj to map in order to flatten (needed to flatten for influxDB)
 	//intialize flatJSONMap as placeholder for marshal
