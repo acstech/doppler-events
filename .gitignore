@@ -2,9 +2,12 @@
 data/influx/*
 data/kafka/*
 data/zookeeper/*
+data/couchbase/*
 !data/influx/.gitkeep
 !data/kafka/.gitkeep
 !data/zookeeper/.gitkeep
+!data/couchbase/.gitkeep
+!data/influx_startup/influx_startup.sh
 
 # general data to ignore
 .DS_store
