@@ -2,6 +2,7 @@
 data/influx/*
 data/kafka/*
 data/zookeeper/*
+data/couchbase/*
 !data/influx/.gitkeep
 !data/kafka/.gitkeep
 !data/zookeeper/.gitkeep
