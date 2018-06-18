@@ -35,6 +35,7 @@ type server struct {
 	theProd sarama.AsyncProducer
 }
 
+//newProducer configures an asynchronous kafka producer client, returns it
 func newProducer() (sarama.AsyncProducer, error) {
 	sarama.Logger = log.New(os.Stdout, "[sarama] ", log.LstdFlags)
 	// Setup configuration
@@ -53,19 +54,10 @@ func newProducer() (sarama.AsyncProducer, error) {
 
 }
 
+//sendToQueue takes byte array, passes it to producer and writes to kafka instance
 func (prod *server) sendToQueue(JSONob []byte) {
-	/*	signals := make(chan os.Signal, 1)
-		signal.Notify(signals, os.Interrupt)*/
-
-	//	var wait sync.WaitGroup
-	//	wait.Add(1)
 
 	var enqueued, errors int
-
-	//	go func() {
-
-	//		defer wait.Done()
-	//time.Sleep(1000 * time.Millisecond)
 
 	msg := &sarama.ProducerMessage{
 		Topic: "influx-topic",
@@ -80,12 +72,7 @@ func (prod *server) sendToQueue(JSONob []byte) {
 		errors++
 		fmt.Println("Failed to produce message:", err)
 	}
-	/*		case <-signals:
-			break producerLoop
-		}
-	}()
 
-	wait.Wait()*/
 	log.Printf("Enqueued: %d; errors: %d\n", enqueued, errors)
 }
 
@@ -99,13 +86,7 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 	//convert DisplayRequest to map in order to flatten (needed to flatten for influxDB)
 	//intialize flatJSONMap as placeholder for marshal
 	flatJSONMap := make(map[string]string)
-	/*	newJSONMap := &NewDisplayData{
-		ClientID:       in.ClientId,
-		EventID:        in.EventId,
-		TimeSinceEpoch: ts,
-		Long:           "asdf",
-		Lat:            "asdf",
-	}*/
+
 	//will always have clientID, eventID, dateTime
 	flatJSONMap["clientID"] = in.ClientId
 	flatJSONMap["eventID"] = in.EventId
@@ -123,21 +104,8 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 		os.Exit(1)
 	}
 
-	/*newJSONbytes, err := json.Marshal(newJSONMap)
-	if err != nil {
-		fmt.Println("Format to JSON Error")
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
-	buf := new(bytes.Buffer)
-	err = json.NewEncoder(buf).Encode(newJSONMap)
-	if err != nil {
-		panic(err)
-	}
-	*/
 	//NEEDED method to send to Kafka
 	s.sendToQueue(JSONbytes)
-	//s.sendToQueue(newJSONbytes)
 
 	//return response to client
 	return &pb.DisplayResponse{Response: "Success! Open heatmap at ____ to see results"}, nil
