@@ -51,7 +51,7 @@ services:
     volumes:
       - ./data/influx:/var/lib/influxdb
       - ./data/influx_startup:/docker-entrypoint-initdb.d
-  
+
   couchbase:
     hostname: couchbase
     image: couchbase:5.1.1
@@ -83,7 +83,7 @@ services:
      - "9093:9092" # Producer connection
      - "9102:9102"
     environment:
-      # kafka connect 
+      # kafka connect
       CONNECT_BOOTSTRAP_SERVERS: 'kafka:9092'
       CONNECT_REST_ADVERTISED_HOST_NAME: kafka_connect
       CONNECT_REST_PORT: 8083
@@ -116,5 +116,5 @@ services:
       CONNECTOR_CONNECT_INFLUX_DB: "doppler"
       CONNECTOR_CONNECT_INFLUX_USERNAME: root
       CONNECTOR_CONNECT_INFLUX_PASSWORD: "root"
-      CONNECTOR_CONNECT_INFLUX_KCQL: "INSERT INTO \"dopplerDataHistory\" SELECT \"lat\", \"lon\" FROM \"influx-topic\" WITHTIMESTAMP timeSinceEpoch WITHTAG(\"clientID\", \"eventID\")"
+      CONNECTOR_CONNECT_INFLUX_KCQL: "INSERT INTO \"dopplerDataHistory\" SELECT \"lat\", \"lng\" FROM \"influx-topic\" WITHTIMESTAMP \"dateTime\" WITHTAG(\"clientID\", \"eventID\")"
       CONNECTOR_CONNECT_INFLUX_RETENTION_POLICY: "sixMonths"

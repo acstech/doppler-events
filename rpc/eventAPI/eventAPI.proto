@@ -1,0 +1,33 @@
+// Event API Proto
+// About: defines gRPC message format for EventAPI
+//
+
+syntax = "proto3";
+
+package dopplerEvent;
+option go_package = "eventAPI";
+
+import "google/protobuf/timestamp.proto";
+
+// Event Sender definition
+service EventAPI {
+  // Sends the event and does not get anything back
+  rpc DisplayData (DisplayRequest) returns (DisplayResponse) {}
+}
+
+// Event Receive message format
+message DisplayRequest {
+  // unique ID for client
+  string client_id = 1;
+  // to specify what type of event they are sending
+  string event_id = 2;
+  // time value (Unix time)
+  google.protobuf.Timestamp date_time = 3;
+  // all data and any other sort of tags
+  map<string, string> data_set = 4;
+}
+
+// Event Response message format
+message DisplayResponse {
+  string response = 1;
+}
