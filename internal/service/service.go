@@ -11,6 +11,7 @@ import (
 	"os"
 
 	"github.com/Shopify/sarama"
+	cb "github.com/acstech/doppler-events/internal/couchbase"
 	pb "github.com/acstech/doppler-events/rpc/eventAPI"
 	ptype "github.com/golang/protobuf/ptypes"
 	"golang.org/x/net/context"
@@ -76,7 +77,7 @@ func (prod *server) sendToQueue(JSONob []byte) {
 	log.Printf("Enqueued: %d; errors: %d\n", enqueued, errors)
 }
 
-// SendEvent is the function that EventAPIClient.go calls in order to send data to the server
+// DisplayData is the function that EventAPIClient.go calls in order to send data to the server
 // the data is then processed, formatted to JSON, and send to Kafka
 func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.DisplayResponse, error) {
 
@@ -86,7 +87,16 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 	//convert DisplayRequest to map in order to flatten (needed to flatten for influxDB)
 	//intialize flatJSONMap as placeholder for marshal
 	flatJSONMap := make(map[string]string)
-
+	//check to make sure that the ClientID exists
+	cbConn := &cb.Couchbase{Doc: &cb.Doc{}}
+	cbConn.ConnectToCB("couchbase://validator:rotadilav@localhost/doppler")
+	fmt.Println("Created the db connection.")
+	if !cbConn.ClientExists(in.ClientId) {
+		return &pb.DisplayResponse{Response: "The ClientID is not valid."}, nil
+	}
+	//ensure that the eventID exists
+	cbConn.EventEnsure(in.ClientId, in.EventId)
+	fmt.Println("Client exists and the eventID has been ensured.")
 	//will always have clientID, eventID, dateTime
 	flatJSONMap["clientID"] = in.ClientId
 	flatJSONMap["eventID"] = in.EventId
