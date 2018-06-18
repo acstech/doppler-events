@@ -11,7 +11,7 @@ import (
 	"os"
 
 	"github.com/Shopify/sarama"
-	pb "github.com/acstech/doppler-eventsTest/rpc/eventAPI"
+	pb "github.com/acstech/doppler-events/rpc/eventAPI"
 	ptype "github.com/golang/protobuf/ptypes"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
