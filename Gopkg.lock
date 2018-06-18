@@ -8,6 +8,12 @@
   version = "v1.17.0"
 
 [[projects]]
+  name = "github.com/couchbase/gocb"
+  packages = ["."]
+  revision = "40eafe80a794c46d9aa8111c5ab6a3ee9810b5f5"
+  version = "v1.3.6"
+
+[[projects]]
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
@@ -16,10 +22,7 @@
 [[projects]]
   branch = "master"
   name = "github.com/dixonwille/golang-template"
-  packages = [
-    "internal/service",
-    "rpc/serviceName"
-  ]
+  packages = ["rpc/serviceName"]
   revision = "db492f6848d6b0116801be4f29a6ff1e96d97bfc"
 
 [[projects]]
@@ -59,6 +62,12 @@
   revision = "2e65f85255dbc3072edf28d6b5b8efc472979f5a"
 
 [[projects]]
+  name = "github.com/google/uuid"
+  packages = ["."]
+  revision = "064e2069ce9c359c118179501254f67d7d37ba24"
+  version = "0.2"
+
+[[projects]]
   branch = "master"
   name = "github.com/ianschenck/envflag"
   packages = ["."]
@@ -72,6 +81,15 @@
   ]
   revision = "a79fa1e548e2c689c241d10173efd51e5d689d5b"
   version = "v1.2.0"
+
+[[projects]]
+  name = "github.com/opentracing/opentracing-go"
+  packages = [
+    ".",
+    "log"
+  ]
+  revision = "1949ddbfd147afd4d964a9f00b24eb291e0e7c38"
+  version = "v1.0.2"
 
 [[projects]]
   name = "github.com/pierrec/lz4"
@@ -160,9 +178,27 @@
   revision = "7a6a684ca69eb4cae85ad0a484f2e531598c047b"
   version = "v1.12.2"
 
+[[projects]]
+  name = "gopkg.in/couchbase/gocbcore.v7"
+  packages = ["."]
+  revision = "b83e7ae1df3e664ec54638717803154f12223de2"
+  version = "v7.1.1"
+
+[[projects]]
+  name = "gopkg.in/couchbaselabs/gocbconnstr.v1"
+  packages = ["."]
+  revision = "710456e087a6d497e87f41d0a9d98d6a75672186"
+  version = "v1.0.1"
+
+[[projects]]
+  name = "gopkg.in/couchbaselabs/jsonx.v1"
+  packages = ["."]
+  revision = "5b7baa20429a46a5543ee259664cc86502738cad"
+  version = "v1.0.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5f240a346f6a31afb7d507e90cae43221b6ea3efd99c771610953d0f7ba246de"
+  inputs-digest = "eaca5b05980a174c49ab7c7fba0fc21d42d15175f0739fc6c54a0af36d0822c5"
   solver-name = "gps-cdcl"
   solver-version = 1
