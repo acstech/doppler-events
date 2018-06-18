@@ -88,13 +88,15 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 	//intialize flatJSONMap as placeholder for marshal
 	flatJSONMap := make(map[string]string)
 	//check to make sure that the ClientID exists
-	cb = &Client{}
-	cb.ConnectToCB("couchbase://validator:rotadilav@localhost/doppler")
-	if !cb.ClientExist(in.ClientId) {
+	cbConn := &cb.Couchbase{Doc: &cb.Doc{}}
+	cbConn.ConnectToCB("couchbase://validator:rotadilav@localhost/doppler")
+	fmt.Println("Created the db connection.")
+	if !cbConn.ClientExists(in.ClientId) {
 		return &pb.DisplayResponse{Response: "The ClientID is not valid."}, nil
 	}
 	//ensure that the eventID exists
-	cb.EventEnsure(in.ClientId, in.EventId)
+	cbConn.EventEnsure(in.ClientId, in.EventId)
+	fmt.Println("Client exists and the eventID has been ensured.")
 	//will always have clientID, eventID, dateTime
 	flatJSONMap["clientID"] = in.ClientId
 	flatJSONMap["eventID"] = in.EventId
