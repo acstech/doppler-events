@@ -51,7 +51,7 @@ func (c *Couchbase) collectEvents(clientID string) error {
 		return err
 	}
 	// get the Events array into a slice
-	docFrag.Content("Events", &c.Doc.Events)
+	docFrag.Content("Events", &c.Doc.Events) // Error, but why is Doc.Events null?
 	if err != nil {
 		return err
 	}
