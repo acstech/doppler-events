@@ -11,7 +11,7 @@ const{
 	var COUCHBASE_PASSWORD string = "rotadilav"
 }
 func main() {
-	
+	//pass config variables so that they can be used later
 	service.Init(COUCHBASE_HOST, COUCHBASE_BUCKET, COUCHBASE_USERNAME, COUCHBASE_PASSWORD)
 
 }
