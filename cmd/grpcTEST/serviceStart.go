@@ -1,8 +1,8 @@
 package main
 
-import "github.com/acstech/doppler-eventsTest/internal/service"
+import "github.com/acstech/doppler-events/internal/service"
 
-func main(){
+func main() {
 
-  service.Init()
+	service.Init()
 }

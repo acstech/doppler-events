@@ -4,7 +4,7 @@ import (
 	"log"
 	"net"
 
-	"github.com/acstech/doppler-eventsTest/internal/service"
+	"github.com/acstech/doppler-events/internal/service"
 	"github.com/dixonwille/golang-template/rpc/serviceName"
 	"google.golang.org/grpc"
 )

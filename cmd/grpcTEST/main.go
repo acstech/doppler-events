@@ -10,7 +10,7 @@ package main
 import (
 	ptype "github.com/golang/protobuf/ptypes"
 
-	c "github.com/acstech/doppler-eventsTest/cmd/grpcTEST/EventAPIClient" //c meaning client call
+	c "github.com/acstech/doppler-events/cmd/grpcTEST/EventAPIClient" //c meaning client call
 )
 
 func main() {
