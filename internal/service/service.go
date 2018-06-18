@@ -124,6 +124,7 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 }
 
 func Init(cbH, cbBuck, cbUser, cbPass) {
+	//store config variables
 	cbHost = cbH
 	cbBucket = cbBuck
 	cbUsername = cbUser
