@@ -1,4 +1,4 @@
-package main
+package couchbase
 
 import (
 	"errors"
@@ -10,12 +10,15 @@ import (
 )
 
 // Client is the client that is to be checked for in the bucket.
+// EventID is the a string which is the eventID of this particular event.
+// Conn is a connection string which be of the form couchbase://username:password@localhost/bucket_name.
+// Bucket is the gocb Bucket of the bucket listed in the connection string.
 type Client struct {
 	EventID string
 	Conn    string
-	Doc     *doc
-	docID   gocb.Cas
 	Bucket  *gocb.Bucket
+	doc     *doc
+	docID   gocb.Cas
 }
 
 // doc is the document that is associated with the client.
@@ -24,13 +27,14 @@ type doc struct {
 	Events []string `json:"Events"`
 }
 
-func main() {
-	c := &Client{Doc: &doc{ID: "1"}, EventID: "1", Conn: "couchbase://validator:rotadilav@localhost/doppler"}
+/*func main() {
+	c := &Client{EventID: "1", Conn: "couchbase://validator:rotadilav@localhost/doppler"}
+	c.SetClientID("1")
 	fmt.Println("Connecting to couchbase...")
 	c.ConnectToCB()
 	fmt.Println("Connected to couchbase.")
 	if c.ClientExists() {
-		fmt.Println("Client " + c.Doc.ID + " exists")
+		fmt.Println("Client " + c.doc.ID + " exists")
 		c.EventEnsure()
 	} else {
 		fmt.Println("Creating new client")
@@ -39,6 +43,12 @@ func main() {
 	}
 	fmt.Println("Closing the client's bucket.")
 	c.Bucket.Close()
+}*/
+
+// SetClientID ...
+func (c *Client) SetClientID(ID string) {
+
+	c.doc.ID = ID
 }
 
 // ClientExists determines whether or not a couchbase client exists or not.
@@ -60,19 +70,19 @@ func (c *Client) ClientExists() bool {
 func (c *Client) collectEvents() error {
 	var err error
 	var docFrag *gocb.DocumentFragment
-	docFrag, err = c.Bucket.LookupIn(fmt.Sprintf("doppler:client:%s", c.Doc.ID)).Get("Events").Execute()
+	docFrag, err = c.Bucket.LookupIn(fmt.Sprintf("doppler:client:%s", c.doc.ID)).Get("Events").Execute()
 	if err != nil {
 		return err
 	}
 	// get the document's cas value so that the client data can be updated later if need be
 	c.docID = docFrag.Cas()
 	// get the Events array into a slice
-	docFrag.Content("Events", &c.Doc.Events)
+	docFrag.Content("Events", &c.doc.Events)
 	if err != nil {
 		return err
 	}
 	// display the results of the array to slice conversion
-	fmt.Printf("%#v\n", c.Doc.Events)
+	fmt.Printf("%#v\n", c.doc.Events)
 	return nil
 }
 
@@ -80,14 +90,14 @@ func (c *Client) collectEvents() error {
 // If it does, it will stop there, but if the event doesn't exist it will add it to the slice in its appropriate place
 // and updates the document.
 func (c *Client) EventEnsure() {
-	if binarySearch(c.Doc.Events, c.EventID) == -1 {
+	if binarySearch(c.doc.Events, c.EventID) == -1 {
 		fmt.Println("The eventID does not exist, so add the event to the slice")
 		// the event does not exist so add it to and sort the slice
-		c.Doc.Events = append(c.Doc.Events, c.EventID)
-		sort.SliceStable(c.Doc.Events, func(i, j int) bool { return c.Doc.Events[i] < c.Doc.Events[j] })
-		fmt.Printf("%#v\n", c.Doc.Events)
+		c.doc.Events = append(c.doc.Events, c.EventID)
+		sort.SliceStable(c.doc.Events, func(i, j int) bool { return c.doc.Events[i] < c.doc.Events[j] })
+		fmt.Printf("%#v\n", c.doc.Events)
 		// update the document
-		_, err := c.Bucket.MutateIn(fmt.Sprintf("doppler:client:%s", c.Doc.ID), c.docID, 0).Replace("Events", c.Doc.Events).Execute()
+		_, err := c.Bucket.MutateIn(fmt.Sprintf("doppler:client:%s", c.doc.ID), c.docID, 0).Replace("Events", c.doc.Events).Execute()
 		if err != nil {
 			panic(err)
 		}
@@ -98,13 +108,13 @@ func (c *Client) EventEnsure() {
 
 // CreateDocument creates a document for the client in the couchbase bucket.
 func (c *Client) CreateDocument() {
-	_, err := c.Bucket.Upsert(fmt.Sprintf("doppler:client:%s", c.Doc.ID), c.Doc.Events, 0)
+	_, err := c.Bucket.Upsert(fmt.Sprintf("doppler:client:%s", c.doc.ID), c.doc.Events, 0)
 	if err != nil {
 		panic(err)
 	}
 }
 
-// ConnectToCB connect to couchbase.
+// ConnectToCB connects to couchbase and sets up the client's bucket.
 // returns an error which will be nil if no error has occured.
 func (c *Client) ConnectToCB() error {
 	// parse the connection string into a url for later use
@@ -143,10 +153,10 @@ func (c *Client) ConnectToCB() error {
 
 // GetEvents gets the events list and returns them as a slice.
 func (c *Client) GetEvents() []string {
-	if c.Doc.Events == nil {
+	if c.doc.Events == nil {
 		c.collectEvents()
 	}
-	return c.Doc.Events
+	return c.doc.Events
 }
 
 // binarySearch impliments a binarySearch on a slice of strings.
