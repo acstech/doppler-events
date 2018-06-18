@@ -15,12 +15,13 @@ import (
 
 func main() {
 
+	ts := ptype.TimestampNow()
 	//sample data
 	clientID := "test2"
 	eventID := "Sign In"
-	dateTime := ptype.TimestampNow()
+	dateTime := ts
 
-	dataName1 := "lon"
+	dataName1 := "lng"
 	dataValue1 := "665.67676"
 	dataName2 := "lat"
 	dataValue2 := "87687"
