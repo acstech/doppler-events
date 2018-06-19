@@ -1,17 +1,18 @@
 package main
 
 import (
+	"os"
+
 	"github.com/acstech/doppler-events/internal/service"
-	//c meaning client call
 )
-const{
-	var COUCHBASE_HOST string = "localhost"
-	var COUCHBASE_BUCKET string = "doppler"
-	var COUCHBASE_USERNAME string = "validator"
-	var COUCHBASE_PASSWORD string = "rotadilav"
-}
+
 func main() {
+	//get config variables
+	cbHost := os.Getenv("COUCHBASE_HOST")
+	cbBucket := os.Getenv("COUCHBASE_BUCKET")
+	cbUser := os.Getenv("COUCHBASE_USERNAME")
+	cbPass := os.Getenv("COUCHBASE_PASSWORD")
 	//pass config variables so that they can be used later
-	service.Init(COUCHBASE_HOST, COUCHBASE_BUCKET, COUCHBASE_USERNAME, COUCHBASE_PASSWORD)
+	service.Init(cbHost, cbBucket, cbUser, cbPass)
 
 }
