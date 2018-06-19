@@ -14,10 +14,8 @@ go run cmd/grpcTEST/testsend/testSend.go
 ### Couchbase
 - After starting Couchbase through docker, go to localhost:8091/ and create an administrator, choose to configure the memory and choose 256 MB, and then create a bucket.
 - Then create a user that only has read and write permissions on that same bucket using the security tab.
-- Next add `export COUCHBASE_HOST="couchbase_host"
-export COUCHBASE_BUCKET="bucket_name"
-export COUCHBASE_USERNAME="couchbase_bucket_user"
-export COUCHBASE_PASSWORD="couchbase_bucket_user_password"` to your bash startup script.
+- Next copy and rename .envDefualt from data/couchbase/ to the base directory of this repository as .env.
+- After that, fill in the appropriate environment varialbe(s).
 - Create a document for the client in cmd/grpcTEST/serviceStart.go using the format doppler:client:client_id_here
 ## Running Development
 go run ./cmd/eventAPI/*.go

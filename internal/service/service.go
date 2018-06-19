@@ -18,7 +18,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-var cbHost, cbBucket, cbUsername, cbPassword string
+var cbConnect string
 
 type NewDisplayData struct {
 	// DateTime int64  `json:"DateTime"`
@@ -91,7 +91,7 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 	flatJSONMap := make(map[string]string)
 	//check to make sure that the ClientID exists
 	cbConn := &cb.Couchbase{Doc: &cb.Doc{}}
-	cbConn.ConnectToCB(fmt.Sprintf("couchbase://%s:%s@%s/%s", cbUsername, cbPassword, cbHost, cbBucket))
+	cbConn.ConnectToCB(cbConnect)
 	if !cbConn.ClientExists(in.ClientId) {
 		return &pb.DisplayResponse{Response: "The ClientID is not valid."}, nil
 	}
@@ -121,12 +121,9 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 	return &pb.DisplayResponse{Response: "Success! Open heatmap at ____ to see results"}, nil
 }
 
-func Init(cbH, cbBuck, cbUser, cbPass string) {
+func Init(cbCon string) {
 	//store config variables
-	cbHost = cbH
-	cbBucket = cbBuck
-	cbUsername = cbUser
-	cbPassword = cbPass
+	cbConnect = cbCon
 	//initialize listener on server address
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
