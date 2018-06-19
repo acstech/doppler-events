@@ -97,7 +97,6 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 	}
 	//ensure that the eventID exists
 	cbConn.EventEnsure(in.ClientId, in.EventId)
-	fmt.Println("Client exists and the eventID has been ensured.")
 	//will always have clientID, eventID, dateTime
 	flatJSONMap["clientID"] = in.ClientId
 	flatJSONMap["eventID"] = in.EventId
