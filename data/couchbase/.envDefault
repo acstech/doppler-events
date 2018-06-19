@@ -1,0 +1,2 @@
+### Couchbase
+export COUCHBASE_CONN="couchbase://username:password@host/bucket_name"

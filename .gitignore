@@ -7,7 +7,8 @@ data/couchbase/*
 !data/kafka/.gitkeep
 !data/zookeeper/.gitkeep
 !data/couchbase/.gitkeep
-!data/influx_startup/influx_startup.sh
+!data/couchbase/.envDefault
+!data/influxStartup/influxStartup.sh
 
 # general data to ignore
 .DS_store

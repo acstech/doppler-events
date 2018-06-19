@@ -50,7 +50,7 @@ services:
       INFLUXDB_DB: doppler
     volumes:
       - ./data/influx:/var/lib/influxdb
-      - ./data/influx_startup:/docker-entrypoint-initdb.d
+      - ./data/influxStartup:/docker-entrypoint-initdb.d
 
   couchbase:
     hostname: couchbase

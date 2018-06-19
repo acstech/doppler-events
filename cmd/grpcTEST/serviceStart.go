@@ -1,12 +1,22 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/acstech/doppler-events/internal/service"
-	//c meaning client call
+	"github.com/joho/godotenv"
 )
 
 func main() {
-
-	service.Init()
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Error loading .env file")
+		panic(err)
+	}
+	//get config variables
+	cbConn := os.Getenv("COUCHBASE_CONN")
+	//pass config variables so that they can be used later
+	service.Init(cbConn)
 
 }
