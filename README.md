@@ -15,3 +15,10 @@ An API to connect clients to a queue to process for live preview.
 - Next copy and rename .env.defualt from data/couchbase/ to the base directory of this repository as .env
 - After that, fill in the appropriate environment varialbe
 ## Testing **** Not completed yet ****
+- Create a documents for each client that you are going to use in the aformentioned bucket following the format bucket_name:client:clientID
+Note: that client is going to be the same no matter what the client name is
+- Run `go run cmd/grpcTEST/serviceStart.go`
+- Run `go run cmd/testsend/testSend.go` (The clientID for this test is client0)
+- Check influx by running `docker-compose exec influx_db influx`
+- Next type `USE doppler` and then `SELECT * FROM dopplerDataHistory`
+- You should see data in the database for however many times the testSend.go file ran

@@ -14,8 +14,9 @@ import (
 // Bucket is the bucket listed in the connection string.
 // Doc is the document structure a client document.
 type Couchbase struct {
-	Bucket *gocb.Bucket
-	Doc    *Doc
+	Bucket     *gocb.Bucket
+	Doc        *Doc
+	bucketName string
 }
 
 // Doc is the document that is associated with the client.
@@ -46,7 +47,7 @@ func (c *Couchbase) ClientExists(clientID string) bool {
 func (c *Couchbase) collectEvents(clientID string) error {
 	var err error
 	var docFrag *gocb.DocumentFragment
-	docFrag, err = c.Bucket.LookupIn(fmt.Sprintf("doppler:client:%s", clientID)).Get("Events").Execute()
+	docFrag, err = c.Bucket.LookupIn(fmt.Sprintf("%s:client:%s", c.bucketName, clientID)).Get("Events").Execute()
 	if err != nil {
 		return err
 	}
@@ -62,7 +63,7 @@ func (c *Couchbase) collectEvents(clientID string) error {
 // clientID is the client's ID.
 // eventID is the client's event ID.
 func (c *Couchbase) EventEnsure(clientID, eventID string) {
-	_, err := c.Bucket.MutateIn(fmt.Sprintf("doppler:client:%s", clientID), 0, 0).ArrayAddUnique("Events", eventID, false).Execute()
+	_, err := c.Bucket.MutateIn(fmt.Sprintf("%s:client:%s", c.bucketName, clientID), 0, 0).ArrayAddUnique("Events", eventID, false).Execute()
 	if err != nil {
 		if err.Error() != "subdocument mutation 0 failed (given path already exists in the document)" {
 			panic(err)
@@ -106,6 +107,7 @@ func (c *Couchbase) ConnectToCB(conn string) error {
 	if u.Path == "" || u.Path == "/" {
 		return errors.New("Bucket not specified")
 	}
+	c.bucketName = u.Path[1:]
 	// get the proper connection format (couchbase//host) and connect to the cluster
 	spec := fmt.Sprintf("%s://%s", u.Scheme, u.Host)
 	cluster, err := gocb.Connect(spec)
@@ -114,7 +116,7 @@ func (c *Couchbase) ConnectToCB(conn string) error {
 	}
 	// authenticate the user and connect to the specified bucket
 	cluster.Authenticate(&gocb.PasswordAuthenticator{Username: username, Password: password})
-	c.Bucket, err = cluster.OpenBucket(u.Path[1:], "")
+	c.Bucket, err = cluster.OpenBucket(c.bucketName, "")
 	if err != nil {
 		return err
 	}
