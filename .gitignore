@@ -7,7 +7,7 @@ data/couchbase/*
 !data/kafka/.gitkeep
 !data/zookeeper/.gitkeep
 !data/couchbase/.gitkeep
-!data/couchbase/.envDefault
+!data/couchbase/.env.default
 !data/influxStartup/influxStartup.sh
 
 # general data to ignore
