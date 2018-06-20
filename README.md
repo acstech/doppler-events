@@ -11,6 +11,7 @@ go run cmd/grpcTEST/testsend/testSend.go
 
 
 ## Setup
+- Start by running `docker-compose up -d`
 ### Couchbase
 After starting Couchbase through docker, go to localhost:8091/ and create an administrator, choose to configure the memory and choose 1000 MB, and then create a user
 
