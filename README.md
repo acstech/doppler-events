@@ -1,7 +1,7 @@
 # Doppler-Events
 An API to connect clients to a queue to process for live preview.
 ## Setup
-### Genral
+### General
 - Clone the repository
 - Install [go](https://golang.org/dl/) and [docker](https://docs.docker.com/install/)
 - Run `docker-compose up -d`
