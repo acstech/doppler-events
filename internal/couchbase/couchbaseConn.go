@@ -95,7 +95,7 @@ func (c *Couchbase) ConnectToCB(conn string) error {
 	}
 	// make sure that the url is going to couchbase
 	if u.Scheme != "couchbase" {
-		return errors.New("Scheme must be couchbase")
+		return errors.New("Scheme must be couchbase, verify .env is correct")
 	}
 	// make sure that a username and password exist, this is required by couchbase 5 and higher
 	username, password := "", ""
@@ -105,13 +105,14 @@ func (c *Couchbase) ConnectToCB(conn string) error {
 	}
 	// make sure that the bucket to connect to is specified
 	if u.Path == "" || u.Path == "/" {
-		return errors.New("Bucket not specified")
+		return errors.New("Bucket not specified, verify .env is correct")
 	}
 	c.bucketName = u.Path[1:]
 	// get the proper connection format (couchbase//host) and connect to the cluster
 	spec := fmt.Sprintf("%s://%s", u.Scheme, u.Host)
 	cluster, err := gocb.Connect(spec)
 	if err != nil {
+		fmt.Println("failed to connect")
 		return err
 	}
 	// authenticate the user and connect to the specified bucket

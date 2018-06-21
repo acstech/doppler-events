@@ -19,8 +19,8 @@ const (
 	// address = "kafka IP:Port"
 )
 
-//DisplayData takes in the required arguments and sends the arguments to the server
-func DisplayData(clientID string, eventID string, dateTime *ptype.Timestamp, dataSet map[string]string) {
+//ServeData takes in the required arguments and sends the arguments to the server
+func ServeData(clientID string, eventID string, dateTime *ptype.Timestamp, dataSet map[string]string) {
 
 	//intialize connection with server at address
 	conn, err := grpc.Dial(address, grpc.WithInsecure()) //WithInsecure meaning no authentication required

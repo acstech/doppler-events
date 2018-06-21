@@ -22,8 +22,8 @@ func main() {
 	numEvents := 1  //the number of events per client TODO make random number of events
 
 	//data point variables
-	var clientID = "test2"
-	var eventID = "test"
+	var clientID = "client0"
+	var eventID = ""
 	var dataName1 = "lat"
 	var dataName2 = "lng"
 	var dataSet = make(map[string]string)
@@ -32,7 +32,6 @@ func main() {
 	// first loop creates number of clients
 	// TODO fix this function
 	for clientNum := 0; clientNum < numClients; clientNum++ {
-		clientID = fmt.Sprint("client", clientNum)
 		//second loop creates number of events
 		for eventNum := 0; eventNum < numEvents; eventNum++ {
 			eventID = fmt.Sprint("event", eventNum)
@@ -46,7 +45,7 @@ func main() {
 					dataSet[dataName2] = strconv.Itoa(lng)
 					//fmt.Println(clientID, " ", eventID, " ", dateTime, " ", dataSet)
 					dateTime := ptypes.TimestampNow() //get current time
-					c.DisplayData(clientID, eventID, dateTime, dataSet)
+					c.ServeData(clientID, eventID, dateTime, dataSet)
 				}
 			}
 		}
