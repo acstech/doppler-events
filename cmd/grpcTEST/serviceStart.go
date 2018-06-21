@@ -16,7 +16,6 @@ func main() {
 	}
 	//get config variables
 	cbConn := os.Getenv("COUCHBASE_CONN")
-	fmt.Println(cbConn)
 	//pass config variables so that they can be used later
 	err = service.Init(cbConn)
 	// if an error occurred in itialization, shutdown the server
