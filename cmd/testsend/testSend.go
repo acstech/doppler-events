@@ -41,7 +41,7 @@ func main() {
 				dataSet[dataName1] = strconv.Itoa(lat)
 				//fourth loop iterates through all longitudes and calls API
 				for lng := -175; lng <= 175; lng++ {
-					time.Sleep(500 * time.Millisecond)
+					time.Sleep(250 * time.Millisecond)
 					dataSet[dataName2] = strconv.Itoa(lng)
 					//fmt.Println(clientID, " ", eventID, " ", dateTime, " ", dataSet)
 					dateTime := ptypes.TimestampNow() //get current time
