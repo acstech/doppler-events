@@ -18,16 +18,6 @@ import (
 	"google.golang.org/grpc"
 )
 
-var cbConnect string
-
-type NewDisplayData struct {
-	// DateTime int64  `json:"DateTime"`
-	// ClientID string `json:"clientID"`
-	// EventID  string `json:"eventID"`
-	// Lng      string `json:"lng"`
-	// Lat      string `json:"lat"`
-}
-
 //intialize addressess of where server listens with format IP:Port
 const (
 	address = ":8080"
@@ -36,6 +26,7 @@ const (
 //struct to hold parameters for server
 type server struct {
 	theProd sarama.AsyncProducer
+	cbConn  *cb.Couchbase
 }
 
 //newProducer configures an asynchronous kafka producer client, returns it
@@ -90,13 +81,12 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 	//intialize flatJSONMap as placeholder for marshal
 	flatJSONMap := make(map[string]string)
 	//check to make sure that the ClientID exists
-	cbConn := &cb.Couchbase{Doc: &cb.Doc{}}
-	cbConn.ConnectToCB(cbConnect)
-	if !cbConn.ClientExists(in.ClientId) {
+
+	if !s.cbConn.ClientExists(in.ClientId) {
 		return &pb.DisplayResponse{Response: "The ClientID is not valid."}, nil
 	}
 	//ensure that the eventID exists
-	cbConn.EventEnsure(in.ClientId, in.EventId)
+	s.cbConn.EventEnsure(in.ClientId, in.EventId)
 	//will always have clientID, eventID, dateTime
 	flatJSONMap["clientID"] = in.ClientId
 	flatJSONMap["eventID"] = in.EventId
@@ -122,8 +112,6 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 }
 
 func Init(cbCon string) {
-	//store config variables
-	cbConnect = cbCon
 	//initialize listener on server address
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
@@ -145,7 +133,9 @@ func Init(cbCon string) {
 
 	serve2 := server{
 		theProd: prod,
+		cbConn:  &cb.Couchbase{Doc: &cb.Doc{}},
 	}
+	serve2.cbConn.ConnectToCB(cbCon)
 	//register server to grpc
 	pb.RegisterEventAPIServer(s, &serve2)
 	// Register reflection service on gRPC server for back and forth communication. Kept for future use if necessary
