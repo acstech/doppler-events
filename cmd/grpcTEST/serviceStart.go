@@ -16,6 +16,7 @@ func main() {
 	}
 	//get config variables
 	cbConn := os.Getenv("COUCHBASE_CONN")
+	fmt.Println(cbConn)
 	//pass config variables so that they can be used later
 	service.Init(cbConn)
 

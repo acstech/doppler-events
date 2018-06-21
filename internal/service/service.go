@@ -121,6 +121,7 @@ func Init(cbCon string) {
 	s := grpc.NewServer()
 	prod, err := newProducer()
 	if err != nil {
+		fmt.Println("failed to create Kafka producer connection. Ensure docker is running and the kafka topic is connected.")
 		panic(err)
 	}
 
@@ -135,7 +136,10 @@ func Init(cbCon string) {
 		theProd: prod,
 		cbConn:  &cb.Couchbase{Doc: &cb.Doc{}},
 	}
-	serve2.cbConn.ConnectToCB(cbCon)
+	err = serve2.cbConn.ConnectToCB(cbCon)
+	if err != nil {
+		fmt.Println("CB connection error: ", err)
+	}
 	//register server to grpc
 	pb.RegisterEventAPIServer(s, &serve2)
 	// Register reflection service on gRPC server for back and forth communication. Kept for future use if necessary
