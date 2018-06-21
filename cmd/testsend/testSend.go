@@ -37,10 +37,10 @@ func main() {
 		for eventNum := 0; eventNum < numEvents; eventNum++ {
 			eventID = fmt.Sprint("event", eventNum)
 			//third loop iterates through all latitudes and gets current time
-			for lat := 0; lat <= 90; lat += 10 {
+			for lat := -85; lat <= 85; lat++ {
 				dataSet[dataName1] = strconv.Itoa(lat)
 				//fourth loop iterates through all longitudes and calls API
-				for lng := -175; lng <= 180; lng += 10 {
+				for lng := -175; lng <= 175; lng++ {
 					time.Sleep(500 * time.Millisecond)
 					dataSet[dataName2] = strconv.Itoa(lng)
 					//fmt.Println(clientID, " ", eventID, " ", dateTime, " ", dataSet)
