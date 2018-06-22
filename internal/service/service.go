@@ -42,6 +42,7 @@ func newProducer() (sarama.AsyncProducer, error) {
 	config.Producer.Flush.Messages = 1 // can flush with 1 message
 	//The level of acknowledgement reliability needed from the broker.
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
+	// The level of acknowledgement reliability needed from the broker.
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	brokers := []string{"localhost:9092"}
 	producer, err := sarama.NewAsyncProducer(brokers, config)
@@ -50,7 +51,6 @@ func newProducer() (sarama.AsyncProducer, error) {
 		return nil, err
 	}
 	return producer, nil
-
 }
 
 //sendToQueue takes byte array, passes it to producer and writes to kafka instance
