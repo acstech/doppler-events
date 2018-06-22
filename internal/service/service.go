@@ -9,6 +9,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"time"
 
 	"github.com/Shopify/sarama"
 	cb "github.com/acstech/doppler-events/internal/couchbase"
@@ -35,7 +36,11 @@ func newProducer() (sarama.AsyncProducer, error) {
 	// Setup configuration
 	config := sarama.NewConfig()
 	config.ClientID = "1"
-	// The level of acknowledgement reliability needed from the broker.
+	//configuration for batches
+	config.Producer.Flush.MaxMessages = 30 // will flush if 30 messages arrived
+	config.Producer.Flush.Frequency = 50 * time.Millisecond
+	config.Producer.Flush.Messages = 1 // can flush with 1 message
+	//The level of acknowledgement reliability needed from the broker.
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	brokers := []string{"localhost:9092"}
@@ -50,7 +55,7 @@ func newProducer() (sarama.AsyncProducer, error) {
 
 //sendToQueue takes byte array, passes it to producer and writes to kafka instance
 func (prod *server) sendToQueue(JSONob []byte) {
-
+	fmt.Println("Data to QUEUE")
 	var enqueued, errors int
 
 	msg := &sarama.ProducerMessage{
@@ -66,6 +71,7 @@ func (prod *server) sendToQueue(JSONob []byte) {
 		errors++
 		fmt.Println("Failed to produce message:", err)
 	}
+	fmt.Println("Printing Data")
 
 	log.Printf("Enqueued: %d; errors: %d\n", enqueued, errors)
 }
@@ -81,7 +87,7 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 	//intialize flatJSONMap as placeholder for marshal
 	flatJSONMap := make(map[string]string)
 	//check to make sure that the ClientID exists
-
+	fmt.Println("Got data")
 	if !s.cbConn.ClientExists(in.ClientId) {
 		return &pb.DisplayResponse{Response: "The ClientID is not valid."}, nil
 	}
@@ -103,10 +109,10 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
-
+	fmt.Println("Formatted JSON")
 	//NEEDED method to send to Kafka
 	s.sendToQueue(JSONbytes)
-
+	fmt.Println("All good")
 	//return response to client
 	return &pb.DisplayResponse{Response: "Success! Open heatmap at ____ to see results"}, nil
 }

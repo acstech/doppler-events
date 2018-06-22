@@ -8,12 +8,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"strconv"
-	"time"
 
-	c "github.com/acstech/doppler-events/cmd/grpcTEST/EventAPIClient"
+	pb "github.com/acstech/doppler-events/rpc/eventAPI"
 	"github.com/golang/protobuf/ptypes" //c meaning client call
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -28,6 +30,11 @@ func main() {
 	var dataName2 = "lng"
 	var dataSet = make(map[string]string)
 
+	c, err := dial("localhost:8080")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// loop to create test data (i is number of data points)
 	// first loop creates number of clients
 	// TODO fix this function
@@ -41,14 +48,33 @@ func main() {
 				dataSet[dataName1] = strconv.Itoa(lat)
 				//fourth loop iterates through all longitudes and calls API
 				for lng := -175; lng <= 175; lng++ {
-					time.Sleep(250 * time.Millisecond)
+					//time.Sleep(250 * time.Millisecond)
 
 					dataSet[dataName2] = strconv.Itoa(lng)
 					//fmt.Println(clientID, " ", eventID, " ", dateTime, " ", dataSet)
 					dateTime := ptypes.TimestampNow() //get current time
-					c.DisplayData(clientID, eventID, dateTime, dataSet)
+					resp, err := c.DisplayData(context.Background(), &pb.DisplayRequest{
+						ClientId: clientID,
+						EventId:  eventID,
+						DateTime: dateTime,
+						DataSet:  dataSet,
+					})
+					if err != nil {
+						log.Println(err)
+						continue
+					}
+					log.Println(resp.Response)
 				}
 			}
 		}
 	}
+}
+
+func dial(addr string) (pb.EventAPIClient, error) {
+	conn, err := grpc.Dial(addr, grpc.WithInsecure()) //WithInsecure meaning no authentication required
+	if err != nil {
+		return nil, fmt.Errorf("Did not connect: %v", err)
+	}
+	client := pb.NewEventAPIClient(conn)
+	return client, nil
 }
