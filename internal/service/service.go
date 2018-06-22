@@ -58,8 +58,9 @@ func (prod *server) sendToQueue(JSONob []byte) {
 	// var enqueued, errors int
 
 	msg := &sarama.ProducerMessage{
-		Topic: "influx-topic",
-		Value: sarama.ByteEncoder(JSONob),
+		Topic:     "influx-topic",
+		Value:     sarama.ByteEncoder(JSONob),
+		Partition: 1, //partNum,
 	}
 	go func() {
 		for err := range prod.theProd.Errors() {
