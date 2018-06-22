@@ -37,7 +37,6 @@ func main() {
 
 	// loop to create test data (i is number of data points)
 	// first loop creates number of clients
-	// TODO fix this function
 	for clientNum := 0; clientNum < numClients; clientNum++ {
 		//second loop creates number of events
 		for eventNum := 0; eventNum < numEvents; eventNum++ {
@@ -47,8 +46,6 @@ func main() {
 				dataSet[dataName1] = strconv.Itoa(lat)
 				//fourth loop iterates through all longitudes and calls API
 				for lng := -175; lng <= 175; lng++ {
-					//time.Sleep(250 * time.Millisecond)
-
 					dataSet[dataName2] = strconv.Itoa(lng)
 					//fmt.Println(clientID, " ", eventID, " ", dateTime, " ", dataSet)
 					dateTime := ptypes.TimestampNow() //get current time
