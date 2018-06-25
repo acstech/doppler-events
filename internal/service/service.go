@@ -55,25 +55,22 @@ func newProducer() (sarama.AsyncProducer, error) {
 
 //sendToQueue takes byte array, passes it to producer and writes to kafka instance
 func (prod *server) sendToQueue(JSONob []byte) {
-	fmt.Println("Data to QUEUE")
-	var enqueued, errors int
+	// var enqueued, errors int
 
 	msg := &sarama.ProducerMessage{
 		Topic: "influx-topic",
 		Value: sarama.ByteEncoder(JSONob),
 	}
+	go func() {
+		for err := range prod.theProd.Errors() {
+			fmt.Println("Failed to produce message:", err)
+		}
+	}()
+	prod.theProd.Input() <- msg
 
-	select {
-	case prod.theProd.Input() <- msg:
-		enqueued++
-		fmt.Println("Produce message")
-	case err := <-prod.theProd.Errors():
-		errors++
-		fmt.Println("Failed to produce message:", err)
-	}
-	fmt.Println("Printing Data")
+	// fmt.Println("Printing Data")
 
-	log.Printf("Enqueued: %d; errors: %d\n", enqueued, errors)
+	// log.Printf("Enqueued: %d; errors: %d\n", enqueued, errors)
 }
 
 // DisplayData is the function that EventAPIClient.go calls in order to send data to the server
@@ -87,7 +84,6 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 	//intialize flatJSONMap as placeholder for marshal
 	flatJSONMap := make(map[string]string)
 	//check to make sure that the ClientID exists
-	fmt.Println("Got data")
 	if !s.cbConn.ClientExists(in.ClientId) {
 		return &pb.DisplayResponse{Response: "The ClientID is not valid."}, nil
 	}
@@ -107,14 +103,11 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 	if err != nil {
 		fmt.Println("Format to JSON Error")
 		fmt.Println(err.Error())
-		os.Exit(1)
+		return nil, err
 	}
-	fmt.Println("Formatted JSON")
-	//NEEDED method to send to Kafka
 	s.sendToQueue(JSONbytes)
-	fmt.Println("All good")
 	//return response to client
-	return &pb.DisplayResponse{Response: "Success! Open heatmap at ____ to see results"}, nil
+	return &pb.DisplayResponse{Response: fmt.Sprintf("Success: %s", in.ClientId)}, nil
 }
 
 func Init(cbCon string) {
