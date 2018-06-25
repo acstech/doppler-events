@@ -30,16 +30,16 @@ type Doc struct {
 // ClientExists determines whether or not a couchbase client exists or not.
 // clientID is the client's ID.
 // returns true if the document exists and false otherwise.
-func (c *Couchbase) ClientExists(clientID string) bool {
+func (c *Couchbase) ClientExists(clientID string) (bool, error) {
 	err := c.collectEvents(clientID)
 	if err != nil {
 		// check to see if the key exists
 		if gocb.IsKeyNotFoundError(err) {
-			return false
+			return false, nil
 		}
-		panic(err)
+		return false, err
 	}
-	return true
+	return true, nil
 }
 
 // collectEvents gets the list of eventID's for the client from the couchbase document.
@@ -62,26 +62,28 @@ func (c *Couchbase) collectEvents(clientID string) error {
 // EventEnsure adds the provided event to the client's document if it is not already there.
 // clientID is the client's ID.
 // eventID is the client's event ID.
-func (c *Couchbase) EventEnsure(clientID, eventID string) {
+func (c *Couchbase) EventEnsure(clientID, eventID string) error {
 	_, err := c.Bucket.MutateIn(fmt.Sprintf("%s:client:%s", c.bucketName, clientID), 0, 0).ArrayAddUnique("Events", eventID, false).Execute()
 	if err != nil {
 		if err.Error() != "subdocument mutation 0 failed (given path already exists in the document)" {
-			panic(err)
+			return err
 		}
 	}
+	return nil
 }
 
 // CreateDocument creates a document for the client in the couchbase bucket.
 // clientID is the client's ID.
 // eventID is the client's event ID.
 // Note: this resets the Doc data of the connector.
-func (c *Couchbase) CreateDocument(clientID, eventID string) {
+func (c *Couchbase) CreateDocument(clientID, eventID string) error {
 	c.Doc.Events = append(c.Doc.Events, eventID)
 	_, err := c.Bucket.Upsert(fmt.Sprintf("doppler:client:%s", clientID), c.Doc.Events, 0)
 	c.Doc = &Doc{}
 	if err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
 // ConnectToCB connects to couchbase and sets up the client's bucket.
