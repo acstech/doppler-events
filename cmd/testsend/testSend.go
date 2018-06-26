@@ -27,7 +27,7 @@ func main() {
 
 	//data point variables
 	var clientIDs = []string{"client0", "nav1"}
-	var eventIDs = []string{/*"event0", "event1", "5678", "465798", "run22", "1", "2", "hdjsk" "new1", "new2"*/ "22", "h1"}
+	var eventIDs = []string{"event0", "event1"}
 	//connect to server
 	c, err := dial("localhost:8080")
 	if err != nil {
@@ -35,6 +35,7 @@ func main() {
 	}
 	//get true random
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	count := 0
 	for {
 		//time.Sleep(3 * time.Millisecond)
 		clientID := clientIDs[r.Int31n(int32(len(clientIDs)))]   //pick random client from clientIDs slice
@@ -48,7 +49,8 @@ func main() {
 			continue
 		}
 		//print server response
-		log.Println(resp.Response)
+		count++
+		log.Println(resp.Response, count)
 	}
 
 	// loop to create test data (i is number of data points)
