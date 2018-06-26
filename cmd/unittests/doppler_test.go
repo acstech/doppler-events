@@ -3,8 +3,11 @@ package doppler_test
 import (
 	"context"
 	"fmt"
+	"log"
+	"net"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/Shopify/sarama"
 	cb "github.com/acstech/doppler-events/internal/couchbase"
@@ -22,6 +25,11 @@ type Responses struct {
 	ValArray []InfluxResponse
 }
 
+type server struct {
+	theProd sarama.AsyncProducer
+	cbConn  *cb.Couchbase
+}
+
 var (
 	bucket      string
 	clientID    string
@@ -33,8 +41,10 @@ var (
 	badcbconfig string
 	cbConn      string
 	producer    sarama.AsyncProducer
-	client      pb.EventAPIClient
-	testCB      *cb.Couchbase
+	theserver   string
+
+	client pb.EventAPIClient
+	testCB *cb.Couchbase
 )
 
 func init() {
@@ -47,15 +57,44 @@ func init() {
 	//get config variables
 	cbConn = os.Getenv("COUCHBASE_CONN")
 	testCB = &cb.Couchbase{Doc: &cb.Doc{}}
+
+	clientID = "client0"
+	eventID = "event0"
+
+	lis, err := net.Listen("tcp", ":8080")
+	if err != nil {
+		fmt.Errorf("failed to listen: %v", err)
+	}
+	s := grpc.NewServer()
+	pb.RegisterGreeterServer(s, &server{})
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
+
 	conn, err := grpc.Dial("localhost:8080", grpc.WithInsecure()) //WithInsecure meaning no authentication required
 	if err != nil {
 		fmt.Errorf("Did not connect: %v", err)
 	}
-
+	defer conn.Close()
 	client = pb.NewEventAPIClient(conn)
 
-	clientID = "client0"
-	eventID = "event0"
+	sarama.Logger = log.New(os.Stdout, "[sarama] ", log.LstdFlags)
+	// Setup configuration
+	config := sarama.NewConfig()
+	config.ClientID = "1"
+	//configuration for batches
+	config.Producer.Flush.MaxMessages = 30 // will flush if 30 messages arrived
+	config.Producer.Flush.Frequency = 50 * time.Millisecond
+	config.Producer.Flush.Messages = 1 // can flush with 1 message
+	//The level of acknowledgement reliability needed from the broker.
+	config.Producer.Partitioner = sarama.NewRandomPartitioner
+	// The level of acknowledgement reliability needed from the broker.
+	config.Producer.RequiredAcks = sarama.WaitForAll
+	brokers := []string{"localhost:9092"}
+	producer, err = sarama.NewAsyncProducer(brokers, config)
+	if err != nil {
+		fmt.Println("HEY")
+	}
 	//TODO: setup influx client
 	// var fluxClient client.Client
 	// q := fluxClient.NewQuery("select * from dopplerDataHistory", "doppler", "s")
@@ -123,18 +162,6 @@ func TestCBconnect(t *testing.T) {
 	}
 }
 
-func TestCBconnect2(t *testing.T) {
-	if !testCB.ClientExists(clientID) {
-		fmt.Println("err")
-	}
-	//ensure that the eventID exists
-	// testCB.EventEnsure(clientID, eventID)
-	// if err != nil {
-	// 	//TODO try to manually create CB document, format, recheck error
-	// 	t.Errorf("success expected: this, received: %d", err)
-	// }
-}
-
 func TestValidData(t *testing.T) {
 	fmt.Println("testValid")
 	dataSet := make(map[string]string, 2)
@@ -146,17 +173,10 @@ func TestValidData(t *testing.T) {
 	dataSet["lat"] = latitude
 	dataSet["lng"] = longitude
 
-	//req := &pb.DisplayRequest{ClientId: clientID, EventId: eventID, DateTime: dateTime, DataSet: dataSet}
-
-	_, err := client.DisplayData(context.Background(), &pb.DisplayRequest{
-		ClientId: clientID,
-		EventId:  eventID,
-		DateTime: dateTime,
-		DataSet:  dataSet,
-	})
-
+	req := &pb.DisplayRequest{ClientId: clientID, EventId: eventID, DateTime: dateTime, DataSet: dataSet}
+	time.Sleep(1 * time.Second)
+	_, err := s.DisplayData(context.Background(), req)
 	if err != nil {
-		fmt.Println(err)
 		t.Errorf("errored %d", err)
 	}
 }

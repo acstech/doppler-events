@@ -108,6 +108,7 @@ func verifyConstraints(req *pb.DisplayRequest) ErrorRes {
 
 //newProducer configures an asynchronous kafka producer client, returns it
 func newProducer() (sarama.AsyncProducer, error) {
+
 	sarama.Logger = log.New(os.Stdout, "[sarama] ", log.LstdFlags)
 	// Setup configuration
 	config := sarama.NewConfig()
@@ -148,7 +149,7 @@ func (prod *server) sendToQueue(JSONob []byte) {
 // DisplayData is the function that EventAPIClient.go calls in order to send data to the server
 // the data is then processed, formatted to JSON, and send to Kafka
 func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.DisplayResponse, error) {
-
+	fmt.Println("made it thus")
 	errs := verifyConstraints(in)
 	if len(errs.errMes) != 0 {
 		errorMSG := ""
@@ -227,7 +228,6 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 		}
 		flatJSONMap[key] = value
 	}
-
 	//format to JSON
 	JSONbytes, err := json.Marshal(flatJSONMap) //Marshal returns the ascii presentation of the data
 	if err != nil {
