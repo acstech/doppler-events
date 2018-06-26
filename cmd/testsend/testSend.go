@@ -36,6 +36,7 @@ func main() {
 	//get true random
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for {
+		//time.Sleep(3 * time.Millisecond)
 		clientID := clientIDs[r.Int31n(int32(len(clientIDs)))]   //pick random client from clientIDs slice
 		eventID := eventIDs[r.Int31n(int32(len(eventIDs)))]      //pick random event from eventIDs slice
 		lat := (r.Float64() - .5) * 170                          //get random lat
