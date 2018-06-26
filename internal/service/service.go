@@ -142,6 +142,7 @@ func (prod *server) sendToQueue(JSONob []byte) {
 			fmt.Println("Failed to produce message:", err)
 		}
 	}()
+	prod.theProd.Input() <- msg
 }
 
 // DisplayData is the function that EventAPIClient.go calls in order to send data to the server
@@ -154,7 +155,7 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 		for e := range errs.errMes {
 			errorMSG += errs.errMes[e] + ", "
 		}
-		return nil, fmt.Errorf("invalid input: %s", errorMSG[:len(errorMSG)-2])
+		return nil, status.Error(codes.InvalidArgument, "invalid input: "+errorMSG[:len(errorMSG)-2])
 	}
 	//converting protobuf timestap to to a string in format yyyy-MM-DDTHH:mm:ss.SSSZ
 	ts := ptype.TimestampString(in.DateTime)
@@ -166,7 +167,7 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 	cont, err := s.cbConn.ClientExists(in.ClientId)
 	if err != nil {
 		if err == gocb.ErrTimeout {
-			return nil, status.Error(codes.Unavailable, "couchbase is currently down")
+			return nil, status.Error(codes.Internal, "couchbase is currently down")
 		} else if err == gocb.ErrBusy {
 			return nil, status.Error(codes.Internal, "couchbase is currently busy")
 		}
@@ -180,7 +181,7 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 	if err != nil {
 		//an error ensuring that the event be added to couchbase
 		if err == gocb.ErrTimeout {
-			return nil, status.Error(codes.Unavailable, "couchbase is currently down")
+			return nil, status.Error(codes.Internal, "couchbase is currently down")
 		} else if err == gocb.ErrBusy {
 			return nil, status.Error(codes.Internal, "couchbase is currently busy")
 		}
