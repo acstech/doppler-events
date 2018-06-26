@@ -79,7 +79,7 @@ func verifyConstraints(req *pb.DisplayRequest) ErrorRes {
 					errRes.errMes = append(errRes.errMes, "invalid latitude type")
 				}
 				//check valid ranges
-				if floater < -85 || floater > 85 {
+				if floater < -90 || floater > 90 {
 					errRes.errMes = append(errRes.errMes, "invalid latitude value")
 				}
 			} else {
@@ -92,7 +92,7 @@ func verifyConstraints(req *pb.DisplayRequest) ErrorRes {
 				if err != nil {
 					errRes.errMes = append(errRes.errMes, "invalid longitude type")
 				}
-				if floater < -175 || floater > 175 {
+				if floater < -180 || floater > 180 {
 					errRes.errMes = append(errRes.errMes, "invalid longitude value")
 				}
 			} else {
@@ -193,6 +193,30 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 	flatJSONMap["dateTime"] = ts
 	//loop across dataSet map and add key and value to flatJSON
 	for key, value := range in.DataSet {
+		if key == "lat" {
+			val, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				return nil, fmt.Errorf("invalid input: lattitude type error")
+			}
+			if val > 85.0 {
+				value = "85.0"
+			} else if val < -85.0 {
+				value = "-85.0"
+			}
+		} else if key == "lng" {
+			val, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				return nil, fmt.Errorf("invalid input: lattitude type error")
+			}
+			if err != nil {
+				return nil, fmt.Errorf("invalid input: lattitude type error")
+			}
+			if val > 175.0 {
+				value = "175.0"
+			} else if val < -175.0 {
+				value = "-175.0"
+			}
+		}
 		flatJSONMap[key] = value
 	}
 
