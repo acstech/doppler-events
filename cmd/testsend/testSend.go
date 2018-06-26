@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"strconv"
 	"time"
 
 	pb "github.com/acstech/doppler-events/rpc/eventAPI" //c meaning client call
@@ -25,7 +26,7 @@ func main() {
 	// numEvents := 1  //the number of events per client TODO make random number of events
 
 	//data point variables
-	//var clientIDs = []string{"client0", "nav1"}
+	var clientIDs = []string{"client0", "nav1"}
 	var eventIDs = []string{"event0", "event1"}
 	//connect to server
 	c, err := dial("localhost:8080")
@@ -34,20 +35,19 @@ func main() {
 	}
 	//get true random
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	//count := 0
 	for {
-		//clientID := clientIDs[r.Int31n(int32(len(clientIDs)))] //pick random client from clientIDs slice
-		clientID := "client0"
-		eventID := eventIDs[r.Int31n(int32(len(eventIDs)))] //pick random event from eventIDs slice
-		//lat := (r.Float64() - .5) * 5000                  //get random lat
-		//lng := (r.Float64() - .5) * 1000                         //get random lng
-		resp, err := sendRequest(c, clientID, eventID) //call function that prepares data to send to server
+		clientID := clientIDs[r.Int31n(int32(len(clientIDs)))]   //pick random client from clientIDs slice
+		eventID := eventIDs[r.Int31n(int32(len(eventIDs)))]      //pick random event from eventIDs slice
+		lat := (r.Float64() - .5) * 170                          //get random lat
+		lng := (r.Float64() - .5) * 350                          //get random lng
+		resp, err := sendRequest(c, clientID, eventID, lat, lng) //call function that prepares data to send to server
 		//lo any error
 		if err != nil {
 			log.Println(err)
 			continue
 		}
-		log.Println(resp.Response /*, count*/)
+		//print server response
+		log.Println(resp.Response)
 	}
 
 	// loop to create test data (i is number of data points)
@@ -81,11 +81,11 @@ func main() {
 	// }
 }
 
-func sendRequest(c pb.EventAPIClient, clientID, eventID string) (*pb.DisplayResponse, error) {
+func sendRequest(c pb.EventAPIClient, clientID, eventID string, lat, lng float64) (*pb.DisplayResponse, error) {
 	//create map of data
 	dataSet := make(map[string]string, 2)
-	//dataSet["lat"] = strconv.FormatFloat(lat, 'g', -1, 64)
-	//dataSet["lng"] = strconv.FormatFloat(lng, 'g', -1, 64)
+	dataSet["lat"] = strconv.FormatFloat(lat, 'g', -1, 64)
+	dataSet["lng"] = strconv.FormatFloat(lng, 'g', -1, 64)
 	//get current time
 	dateTime := ptypes.TimestampNow()
 	//send data to server, returns response and error
