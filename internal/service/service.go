@@ -5,7 +5,6 @@ package service
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -17,9 +16,12 @@ import (
 	"github.com/Shopify/sarama"
 	cb "github.com/acstech/doppler-events/internal/couchbase"
 	pb "github.com/acstech/doppler-events/rpc/eventAPI"
+	"github.com/couchbase/gocb"
 	ptype "github.com/golang/protobuf/ptypes"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 //intialize addressess of where server listens with format IP:Port
@@ -129,8 +131,7 @@ func newProducer() (sarama.AsyncProducer, error) {
 
 //sendToQueue takes byte array, passes it to producer and writes to kafka instance
 func (prod *server) sendToQueue(JSONob []byte) {
-	// var enqueued, errors int
-
+	// create message to be sent to kafka
 	msg := &sarama.ProducerMessage{
 		Topic: "influx-topic",
 		Value: sarama.ByteEncoder(JSONob),
@@ -141,9 +142,6 @@ func (prod *server) sendToQueue(JSONob []byte) {
 			fmt.Println("Failed to produce message:", err)
 		}
 	}()
-	prod.theProd.Input() <- msg
-
-	// log.Printf("Enqueued: %d; errors: %d\n", enqueued, errors)
 }
 
 // DisplayData is the function that EventAPIClient.go calls in order to send data to the server
@@ -167,13 +165,27 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 	//check to make sure that the ClientID exists
 	cont, err := s.cbConn.ClientExists(in.ClientId)
 	if err != nil {
-		return nil, err
+		if err == gocb.ErrTimeout {
+			return nil, status.Error(codes.Unavailable, "couchbase is currently down")
+		} else if err == gocb.ErrBusy {
+			return nil, status.Error(codes.Internal, "couchbase is currently busy")
+		}
+		return nil, status.Errorf(codes.Internal, "couchbase: %v", err)
 	}
 	if !cont {
-		return nil, errors.New("the ClientID is not valid")
+		return nil, status.Error(codes.NotFound, "the ClientID is not valid")
 	}
 	//ensure that the eventID exists
-	s.cbConn.EventEnsure(in.ClientId, in.EventId)
+	err = s.cbConn.EventEnsure(in.ClientId, in.EventId)
+	if err != nil {
+		//an error ensuring that the event be added to couchbase
+		if err == gocb.ErrTimeout {
+			return nil, status.Error(codes.Unavailable, "couchbase is currently down")
+		} else if err == gocb.ErrBusy {
+			return nil, status.Error(codes.Internal, "couchbase is currently busy")
+		}
+		return nil, status.Errorf(codes.Internal, "couchbase: %v", err)
+	}
 	//will always have clientID, eventID, dateTime
 	flatJSONMap["clientID"] = in.ClientId
 	flatJSONMap["eventID"] = in.EventId
@@ -186,9 +198,7 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 	//format to JSON
 	JSONbytes, err := json.Marshal(flatJSONMap) //Marshal returns the ascii presentation of the data
 	if err != nil {
-		fmt.Println("Format to JSON Error")
-		fmt.Println(err.Error())
-		return nil, err
+		return nil, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	s.sendToQueue(JSONbytes)
 	//return response to client
@@ -203,22 +213,20 @@ func Init(cbCon string) error {
 	//initialize listener on server address
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		return fmt.Errorf("failed to listen: %v", err)
 	}
 	//initialize server
 	s := grpc.NewServer()
 	prod, err := newProducer()
 	if err != nil {
-		fmt.Println("failed to create Kafka producer connection. Ensure docker is running and the kafka topic is connected.")
-		return err
+		return fmt.Errorf("failed to create Kafka producer connection: %v", err)
 	}
 
-	defer func() error {
-		if err := prod.Close(); err != nil {
+	defer func() {
+		if errt := prod.Close(); errt != nil {
 			// Should not reach here
-			return err
+			err = fmt.Errorf("error closing producer: %v", errt)
 		}
-		return nil
 	}()
 
 	serve2 := server{
@@ -239,5 +247,5 @@ func Init(cbCon string) error {
 		return fmt.Errorf("failed to serve: %v", err)
 	}
 
-	return nil
+	return err
 }
