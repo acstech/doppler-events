@@ -159,7 +159,18 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 	}
 	//converting protobuf timestap to to a string in format yyyy-MM-DDTHH:mm:ss.SSSZ
 	ts := ptype.TimestampString(in.DateTime)
-
+	//make sure that the timestamp is before now
+	now, err := ptype.TimestampProto(time.Now())
+	if err != nil {
+		return nil, status.Error(codes.Internal, "unable to get the proper time")
+	}
+	tempTime, err := ptype.Timestamp(in.DateTime)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "unable to get the proper time")
+	}
+	if tempTime.After(time.Now()) {
+		ts = ptype.TimestampString(now)
+	}
 	//convert DisplayRequest to map in order to flatten (needed to flatten for influxDB)
 	//intialize flatJSONMap as placeholder for marshal
 	flatJSONMap := make(map[string]string)
@@ -196,7 +207,7 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 		if key == "lat" {
 			val, err := strconv.ParseFloat(value, 64)
 			if err != nil {
-				return nil, fmt.Errorf("invalid input: lattitude type error")
+				return nil, status.Error(codes.InvalidArgument, "invalid input: lattitude type error")
 			}
 			if val > 85.0 {
 				value = "85.0"
@@ -206,10 +217,7 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 		} else if key == "lng" {
 			val, err := strconv.ParseFloat(value, 64)
 			if err != nil {
-				return nil, fmt.Errorf("invalid input: lattitude type error")
-			}
-			if err != nil {
-				return nil, fmt.Errorf("invalid input: lattitude type error")
+				return nil, status.Error(codes.InvalidArgument, "invalid input: lattitude type error")
 			}
 			if val > 175.0 {
 				value = "175.0"
