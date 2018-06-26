@@ -5,10 +5,13 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net"
 	"os"
+	"reflect"
+	"strconv"
 	"time"
 
 	"github.com/Shopify/sarama"
@@ -24,10 +27,77 @@ const (
 	address = ":8080"
 )
 
+type ErrorRes struct {
+	err    error
+	errMes []string
+}
+
 //struct to hold parameters for server
 type server struct {
 	theProd sarama.AsyncProducer
 	cbConn  *cb.Couchbase
+}
+
+// New returns an error that formats as the given text.
+func New(text string) error {
+	return &errorString{text}
+}
+
+// errorString is a trivial implementation of error.
+type errorString struct {
+	s string
+}
+
+func (e *errorString) Error() string {
+	return e.s
+}
+
+//verifyConstraints checks the attributes for in incoming request, verfies valid data
+func verifyConstraints(req *pb.DisplayRequest) ErrorRes {
+	var errRes ErrorRes
+	//check length of EventId
+	if len(req.EventId) > 35 {
+		errRes.errMes = append(errRes.errMes, "EventId must be less than 35 characters")
+	}
+	// check length of ClientId
+	if len(req.ClientId) == 0 {
+		errRes.errMes = append(errRes.errMes, "ClientId must be included")
+	}
+	//check for longitude and latitude keys in DataSet
+	for key, value := range req.DataSet {
+		if key == "lat" {
+			//verify "lat" is in proper format
+			if reflect.TypeOf(value) == reflect.TypeOf("string") {
+				floater, err := strconv.ParseFloat(value, 64)
+				if err != nil {
+					errRes.errMes = append(errRes.errMes, "invalid latitude value. check type")
+				}
+				//check valid ranges
+				if floater < -85 || floater > 85 {
+					errRes.errMes = append(errRes.errMes, "invalid latitude value. check range")
+				}
+			} else {
+				errRes.errMes = append(errRes.errMes, "latitude needs to be a string")
+			}
+			//verify "lng" is in proper format
+		} else if key == "lng" {
+			if reflect.TypeOf(value) == reflect.TypeOf("string") {
+				floater, err := strconv.ParseFloat(value, 64)
+				if err != nil {
+					errRes.errMes = append(errRes.errMes, "invalid longitude value. check type")
+				}
+				if floater < -175 || floater > 175 {
+					errRes.errMes = append(errRes.errMes, "invalid longitude value. check range")
+				}
+			} else {
+				errRes.errMes = append(errRes.errMes, "latitude needs to be a string")
+			}
+			// might want to allow for event to be passed without longitude or latitude
+		} else {
+			errRes.errMes = append(errRes.errMes, "could not find latitude or longitude")
+		}
+	}
+	return errRes
 }
 
 //newProducer configures an asynchronous kafka producer client, returns it
@@ -58,9 +128,9 @@ func (prod *server) sendToQueue(JSONob []byte) {
 	// var enqueued, errors int
 
 	msg := &sarama.ProducerMessage{
-		Topic:     "influx-topic",
-		Value:     sarama.ByteEncoder(JSONob),
-		Partition: 1, //partNum,
+		Topic: "influx-topic",
+		Value: sarama.ByteEncoder(JSONob),
+		//Partition: 1, //partNum,
 	}
 	go func() {
 		for err := range prod.theProd.Errors() {
@@ -68,16 +138,21 @@ func (prod *server) sendToQueue(JSONob []byte) {
 		}
 	}()
 	prod.theProd.Input() <- msg
-
 	// fmt.Println("Printing Data")
 
-	// log.Printf("Enqueued: %d; errors: %d\n", enqueued, errors)
 }
 
 // DisplayData is the function that EventAPIClient.go calls in order to send data to the server
 // the data is then processed, formatted to JSON, and send to Kafka
 func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.DisplayResponse, error) {
 
+	errs := verifyConstraints(in)
+	if len(errs.errMes) != 0 {
+		for e := range errs.errMes {
+			fmt.Println("unable to send message:", errs.errMes[e])
+		}
+		return nil, errors.New("invalid input")
+	}
 	//converting protobuf timestap to to a string in format yyyy-MM-DDTHH:mm:ss.SSSZ
 	ts := ptype.TimestampString(in.DateTime)
 

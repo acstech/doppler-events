@@ -26,7 +26,7 @@ func main() {
 	// numEvents := 1  //the number of events per client TODO make random number of events
 
 	//data point variables
-	var clientIDs = []string{"client0", "nav1"}
+	//var clientIDs = []string{"client0", "nav1"}
 	var eventIDs = []string{"event0", "event1"}
 	//connect to server
 	c, err := dial("localhost:8080")
@@ -35,10 +35,13 @@ func main() {
 	}
 	//get true random
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	count := 0
 	for {
-		clientID := clientIDs[r.Int31n(int32(len(clientIDs)))]   //pick random client from clientIDs slice
-		eventID := eventIDs[r.Int31n(int32(len(eventIDs)))]      //pick random event from eventIDs slice
-		lat := (r.Float64() - .5) * 170                          //get random lat
+		//clientID := clientIDs[r.Int31n(int32(len(clientIDs)))]   //pick random client from clientIDs slice
+		clientID := "client0"
+		eventID := eventIDs[r.Int31n(int32(len(eventIDs)))] //pick random event from eventIDs slice
+		lat := (r.Float64() - .5) * 170
+		fmt.Println(lat)                                         //get random lat
 		lng := (r.Float64() - .5) * 350                          //get random lng
 		resp, err := sendRequest(c, clientID, eventID, lat, lng) //call function that prepares data to send to server
 		//lo any error
@@ -47,7 +50,8 @@ func main() {
 			continue
 		}
 		//print server response
-		log.Println(resp.Response)
+		count++
+		log.Println(resp.Response, count)
 	}
 
 	// loop to create test data (i is number of data points)
