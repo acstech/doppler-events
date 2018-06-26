@@ -59,9 +59,13 @@ func verifyConstraints(req *pb.DisplayRequest) ErrorRes {
 	if len(req.EventId) > 35 {
 		errRes.errMes = append(errRes.errMes, "EventId must be less than 35 characters")
 	}
-	// check length of ClientId
+	//check length of ClientId
 	if len(req.ClientId) == 0 {
 		errRes.errMes = append(errRes.errMes, "ClientId must be included")
+	}
+	// check to make sure that lat and lng exist based on size of the dataSet
+	if len(req.DataSet) < 2 {
+		errRes.errMes = append(errRes.errMes, "could not find latitude or longitude")
 	}
 	//check for longitude and latitude keys in DataSet
 	for key, value := range req.DataSet {
@@ -70,11 +74,11 @@ func verifyConstraints(req *pb.DisplayRequest) ErrorRes {
 			if reflect.TypeOf(value) == reflect.TypeOf("string") {
 				floater, err := strconv.ParseFloat(value, 64)
 				if err != nil {
-					errRes.errMes = append(errRes.errMes, "invalid latitude value. check type")
+					errRes.errMes = append(errRes.errMes, "invalid latitude type")
 				}
 				//check valid ranges
 				if floater < -85 || floater > 85 {
-					errRes.errMes = append(errRes.errMes, "invalid latitude value. check range")
+					errRes.errMes = append(errRes.errMes, "invalid latitude value")
 				}
 			} else {
 				errRes.errMes = append(errRes.errMes, "latitude needs to be a string")
@@ -84,10 +88,10 @@ func verifyConstraints(req *pb.DisplayRequest) ErrorRes {
 			if reflect.TypeOf(value) == reflect.TypeOf("string") {
 				floater, err := strconv.ParseFloat(value, 64)
 				if err != nil {
-					errRes.errMes = append(errRes.errMes, "invalid longitude value. check type")
+					errRes.errMes = append(errRes.errMes, "invalid longitude type")
 				}
 				if floater < -175 || floater > 175 {
-					errRes.errMes = append(errRes.errMes, "invalid longitude value. check range")
+					errRes.errMes = append(errRes.errMes, "invalid longitude value")
 				}
 			} else {
 				errRes.errMes = append(errRes.errMes, "latitude needs to be a string")
@@ -148,10 +152,11 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 
 	errs := verifyConstraints(in)
 	if len(errs.errMes) != 0 {
+		errorMSG := ""
 		for e := range errs.errMes {
-			fmt.Println("unable to send message:", errs.errMes[e])
+			errorMSG += errs.errMes[e] + ", "
 		}
-		return nil, errors.New("invalid input")
+		return nil, fmt.Errorf("invalid input: %s", errorMSG[:len(errorMSG)-2])
 	}
 	//converting protobuf timestap to to a string in format yyyy-MM-DDTHH:mm:ss.SSSZ
 	ts := ptype.TimestampString(in.DateTime)
