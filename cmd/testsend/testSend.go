@@ -38,8 +38,8 @@ func main() {
 	for {
 		clientID := clientIDs[r.Int31n(int32(len(clientIDs)))]   //pick random client from clientIDs slice
 		eventID := eventIDs[r.Int31n(int32(len(eventIDs)))]      //pick random event from eventIDs slice
-		lat := (r.Float64() - .5) * 170                          //get random lat
-		lng := (r.Float64() - .5) * 350                          //get random lng
+		lat := (r.Float64() - .5) * 180                          //get random lat
+		lng := (r.Float64() - .5) * 360                          //get random lng
 		resp, err := sendRequest(c, clientID, eventID, lat, lng) //call function that prepares data to send to server
 		//lo any error
 		if err != nil {
