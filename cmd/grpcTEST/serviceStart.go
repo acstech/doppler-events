@@ -18,8 +18,8 @@ func main() {
 	cbConn := os.Getenv("COUCHBASE_CONN")
 	//pass config variables so that they can be used later
 	err = service.Init(cbConn)
+	// if an error occurred in itialization, shutdown the server
 	if err != nil {
 		panic(err)
 	}
-
 }
