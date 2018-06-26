@@ -52,7 +52,7 @@ func (c *Couchbase) collectEvents(clientID string) error {
 		return err
 	}
 	// get the Events array into a slice
-	docFrag.Content("Events", &c.Doc.Events) // Error, but why is Doc.Events null?
+	docFrag.Content("Events", &c.Doc.Events)
 	if err != nil {
 		return err
 	}
@@ -78,7 +78,7 @@ func (c *Couchbase) EventEnsure(clientID, eventID string) error {
 // Note: this resets the Doc data of the connector.
 func (c *Couchbase) CreateDocument(clientID, eventID string) error {
 	c.Doc.Events = append(c.Doc.Events, eventID)
-	_, err := c.Bucket.Upsert(fmt.Sprintf("doppler:client:%s", clientID), c.Doc.Events, 0)
+	_, err := c.Bucket.Upsert(fmt.Sprintf("%s:client:%s", c.bucketName, clientID), c.Doc.Events, 0)
 	c.Doc = &Doc{}
 	if err != nil {
 		return err
@@ -114,7 +114,6 @@ func (c *Couchbase) ConnectToCB(conn string) error {
 	spec := fmt.Sprintf("%s://%s", u.Scheme, u.Host)
 	cluster, err := gocb.Connect(spec)
 	if err != nil {
-		fmt.Println("failed to connect")
 		return err
 	}
 	// authenticate the user and connect to the specified bucket
