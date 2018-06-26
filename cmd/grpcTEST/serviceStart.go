@@ -17,6 +17,9 @@ func main() {
 	//get config variables
 	cbConn := os.Getenv("COUCHBASE_CONN")
 	//pass config variables so that they can be used later
-	service.Init(cbConn)
+	err = service.Init(cbConn)
+	if err != nil {
+		panic(err)
+	}
 
 }

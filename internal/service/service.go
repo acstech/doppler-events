@@ -138,8 +138,8 @@ func (prod *server) sendToQueue(JSONob []byte) {
 		}
 	}()
 	prod.theProd.Input() <- msg
-	// fmt.Println("Printing Data")
 
+	// log.Printf("Enqueued: %d; errors: %d\n", enqueued, errors)
 }
 
 // DisplayData is the function that EventAPIClient.go calls in order to send data to the server
@@ -160,8 +160,12 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 	//intialize flatJSONMap as placeholder for marshal
 	flatJSONMap := make(map[string]string)
 	//check to make sure that the ClientID exists
-	if !s.cbConn.ClientExists(in.ClientId) {
-		return &pb.DisplayResponse{Response: "The ClientID is not valid."}, nil
+	cont, err := s.cbConn.ClientExists(in.ClientId)
+	if err != nil {
+		return nil, err
+	}
+	if !cont {
+		return nil, errors.New("the ClientID is not valid")
 	}
 	//ensure that the eventID exists
 	s.cbConn.EventEnsure(in.ClientId, in.EventId)
@@ -186,7 +190,11 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 	return &pb.DisplayResponse{Response: fmt.Sprintf("Success: %s", in.ClientId)}, nil
 }
 
-func Init(cbCon string) {
+// Init sets up the backend server so that clients can send data to kafka
+// cbCon is the connection string for couchbase
+// returns an error if any occur while creating a kafka producer, a couchbase connection, sending data,
+// or closing the kafka producer
+func Init(cbCon string) error {
 	//initialize listener on server address
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
@@ -197,14 +205,15 @@ func Init(cbCon string) {
 	prod, err := newProducer()
 	if err != nil {
 		fmt.Println("failed to create Kafka producer connection. Ensure docker is running and the kafka topic is connected.")
-		panic(err)
+		return err
 	}
 
-	defer func() {
+	defer func() error {
 		if err := prod.Close(); err != nil {
 			// Should not reach here
-			panic(err)
+			return err
 		}
+		return nil
 	}()
 
 	serve2 := server{
@@ -213,7 +222,7 @@ func Init(cbCon string) {
 	}
 	err = serve2.cbConn.ConnectToCB(cbCon)
 	if err != nil {
-		fmt.Println("CB connection error: ", err)
+		return fmt.Errorf("CB connection error: %v", err)
 	}
 	//register server to grpc
 	pb.RegisterEventAPIServer(s, &serve2)
@@ -222,6 +231,8 @@ func Init(cbCon string) {
 
 	//tells the server to process the incoming messages, checks if failed to serve
 	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+		return fmt.Errorf("failed to serve: %v", err)
 	}
+
+	return nil
 }
