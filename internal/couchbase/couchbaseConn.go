@@ -72,7 +72,6 @@ func (c *Couchbase) EventEnsure(clientID, eventID string) error {
 				return err
 			}
 		}
-		fmt.Println("extra work")
 	}
 	
 	return nil
@@ -131,23 +130,22 @@ func (c *Couchbase) ConnectToCB(conn string) error {
 	return nil
 }
 
+// binarySearch does a binary search and determines if an element exists inside of a slice or not
 // modified version of https://stackoverflow.com/questions/43073681/golang-binary-search
-func binarySearch(a []string, search string) int {
+func binarySearch(a []string, search string) (result int) {
 	mid := len(a) / 2
-	var result int
-    switch {
-	case len(a) == 1:
-		if (a[0] == search ) {
-			return 0
+	switch {
+	case len(a) == 0:
+		result = -1 // not found
+	case a[mid] > search:
+		result = binarySearch(a[:mid], search)
+	case a[mid] < search:
+		result = binarySearch(a[mid+1:], search)
+		if result != -1 {
+			result += mid + 1
 		}
-        return -1 // not found
-    case a[mid] > search:
-        return binarySearch(a[:mid], search)
-    case a[mid] < search:
-        result = binarySearch(a[mid+1:], search)
-        return  result + mid + 1
-    default: // a[mid] == search
-        return mid // found
+	default: // a[mid] == search
+		result = mid // found
 	}
-	return result
+	return
 }
