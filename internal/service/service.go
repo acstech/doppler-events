@@ -155,18 +155,18 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 		for e := range errs.errMes {
 			errorMSG += errs.errMes[e] + ", "
 		}
-		return nil, status.Error(codes.InvalidArgument, "invalid input: "+errorMSG[:len(errorMSG)-2])
+		return nil, status.Error(codes.InvalidArgument, "401 invalid input: "+errorMSG[:len(errorMSG)-2])
 	}
 	//converting protobuf timestap to to a string in format yyyy-MM-DDTHH:mm:ss.SSSZ
 	ts := ptype.TimestampString(in.DateTime)
 	//make sure that the timestamp is before now
 	now, err := ptype.TimestampProto(time.Now())
 	if err != nil {
-		return nil, status.Error(codes.Internal, "unable to get the proper time")
+		return nil, status.Error(codes.Internal, "504 unable to get the proper time")
 	}
 	tempTime, err := ptype.Timestamp(in.DateTime)
 	if err != nil {
-		return nil, status.Error(codes.Internal, "unable to get the proper time")
+		return nil, status.Error(codes.Internal, "401 unable to get the proper time")
 	}
 	if tempTime.After(time.Now()) {
 		ts = ptype.TimestampString(now)
@@ -178,25 +178,25 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 	cont, err := s.cbConn.ClientExists(in.ClientId)
 	if err != nil {
 		if err == gocb.ErrTimeout {
-			return nil, status.Error(codes.Internal, "couchbase is currently down")
+			return nil, status.Error(codes.Internal, "501 unable to validate clientID")
 		} else if err == gocb.ErrBusy {
-			return nil, status.Error(codes.Internal, "couchbase is currently busy")
+			return nil, status.Error(codes.Internal, "502 unable to validate clientID")
 		}
-		return nil, status.Errorf(codes.Internal, "couchbase: %v", err)
+		return nil, status.Error(codes.Internal, "503 unable to validate clientID")
 	}
 	if !cont {
-		return nil, status.Error(codes.NotFound, "the ClientID is not valid")
+		return nil, status.Error(codes.NotFound, "401 the ClientID is not valid")
 	}
 	//ensure that the eventID exists
 	err = s.cbConn.EventEnsure(in.ClientId, in.EventId)
 	if err != nil {
 		//an error ensuring that the event be added to couchbase
 		if err == gocb.ErrTimeout {
-			return nil, status.Error(codes.Internal, "couchbase is currently down")
+			return nil, status.Error(codes.Internal, "501 unable to validate clientID")
 		} else if err == gocb.ErrBusy {
-			return nil, status.Error(codes.Internal, "couchbase is currently busy")
+			return nil, status.Error(codes.Internal, "502 unable to validate clientID")
 		}
-		return nil, status.Errorf(codes.Internal, "couchbase: %v", err)
+		return nil, status.Error(codes.Internal, "503 unable to validate clientID")
 	}
 	//will always have clientID, eventID, dateTime
 	flatJSONMap["clientID"] = in.ClientId
@@ -207,7 +207,7 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 		if key == "lat" {
 			val, err := strconv.ParseFloat(value, 64)
 			if err != nil {
-				return nil, status.Error(codes.InvalidArgument, "invalid input: lattitude type error")
+				return nil, status.Error(codes.InvalidArgument, "401 invalid input: lattitude type error")
 			}
 			if val > 85.0 {
 				value = "85.0"
@@ -217,7 +217,7 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 		} else if key == "lng" {
 			val, err := strconv.ParseFloat(value, 64)
 			if err != nil {
-				return nil, status.Error(codes.InvalidArgument, "invalid input: lattitude type error")
+				return nil, status.Error(codes.InvalidArgument, "401 invalid input: lattitude type error")
 			}
 			if val > 175.0 {
 				value = "175.0"
@@ -231,7 +231,7 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 	//format to JSON
 	JSONbytes, err := json.Marshal(flatJSONMap) //Marshal returns the ascii presentation of the data
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "%v", err)
+		return nil, status.Error(codes.InvalidArgument, "401 invalid input")
 	}
 	s.sendToQueue(JSONbytes)
 	//return response to client
