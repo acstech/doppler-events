@@ -27,7 +27,7 @@ func main() {
 
 	//data point variables
 	var clientIDs = []string{"client0", "nav1"}
-	var eventIDs = []string{"event0", "event1"}
+	var eventIDs = []string{/*"event0", "event1", "5678", "465798", "run22", "1", "2", "hdjsk" "new1", "new2"*/ "22", "h1"}
 	//connect to server
 	c, err := dial("localhost:8080")
 	if err != nil {
