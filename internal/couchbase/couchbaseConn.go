@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/url"
 	"sort"
+
 	"github.com/couchbase/gocb"
 )
 
@@ -15,7 +16,6 @@ import (
 // Doc is the document structure a client document.
 type Couchbase struct {
 	Bucket     *gocb.Bucket
-	Doc        *Doc
 	bucketName string
 }
 
@@ -30,63 +30,49 @@ type Doc struct {
 // ClientExists determines whether or not a couchbase client exists or not.
 // clientID is the client's ID.
 // returns true if the document exists and false otherwise.
-func (c *Couchbase) ClientExists(clientID string) (bool, error) {
-	err := c.collectEvents(clientID)
+func (c *Couchbase) ClientExists(clientID string) (bool, *Doc, error) {
+	document, err := c.collectEvents(clientID)
 	if err != nil {
 		// check to see if the key exists
 		if gocb.IsKeyNotFoundError(err) {
-			return false, nil
+			return false, nil, nil
 		}
-		return false, err
+		return false, nil, err
 	}
-	return true, nil
+	return true, document, nil
 }
 
 // collectEvents gets the list of eventID's for the client from the couchbase document.
 // clientID is the client's ID.
-func (c *Couchbase) collectEvents(clientID string) error {
+func (c *Couchbase) collectEvents(clientID string) (*Doc, error) {
 	var err error
 	var docFrag *gocb.DocumentFragment
+	document := &Doc{}
 	docFrag, err = c.Bucket.LookupIn(fmt.Sprintf("%s:client:%s", c.bucketName, clientID)).Get("Events").Execute()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	// get the Events array into a slice
-	docFrag.Content("Events", &c.Doc.Events)
+	docFrag.Content("Events", &document.Events)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return document, nil
 }
 
 // EventEnsure adds the provided event to the client's document if it is not already there.
 // clientID is the client's ID.
 // eventID is the client's event ID.
-func (c *Couchbase) EventEnsure(clientID, eventID string) error {
-	sort.Sort(sort.StringSlice(c.Doc.Events))
+func (c *Couchbase) EventEnsure(clientID, eventID string, document *Doc) error {
+	sort.Sort(sort.StringSlice(document.Events))
 	// determine if the eventID is already in couchbase, if it is not then add it
-	if binarySearch(c.Doc.Events, eventID) == -1 {
+	if binarySearch(document.Events, eventID) == -1 {
 		_, err := c.Bucket.MutateIn(fmt.Sprintf("%s:client:%s", c.bucketName, clientID), 0, 0).ArrayAddUnique("Events", eventID, false).Execute()
 		if err != nil {
 			if err.Error() != "subdocument mutation 0 failed (given path already exists in the document)" {
 				return err
 			}
 		}
-	}
-	
-	return nil
-}
-
-// CreateDocument creates a document for the client in the couchbase bucket.
-// clientID is the client's ID.
-// eventID is the client's event ID.
-// Note: this resets the Doc data of the connector.
-func (c *Couchbase) CreateDocument(clientID, eventID string) error {
-	c.Doc.Events = append(c.Doc.Events, eventID)
-	_, err := c.Bucket.Upsert(fmt.Sprintf("%s:client:%s", c.bucketName, clientID), c.Doc.Events, 0)
-	c.Doc = &Doc{}
-	if err != nil {
-		return err
 	}
 	return nil
 }

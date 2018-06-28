@@ -175,7 +175,7 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 	//intialize flatJSONMap as placeholder for marshal
 	flatJSONMap := make(map[string]string)
 	//check to make sure that the ClientID exists
-	cont, err := s.cbConn.ClientExists(in.ClientId)
+	cont, document, err := s.cbConn.ClientExists(in.ClientId)
 	if err != nil {
 		if err == gocb.ErrTimeout {
 			return nil, status.Error(codes.Internal, "501: Unable to validate clientID")
@@ -188,7 +188,7 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 		return nil, status.Error(codes.NotFound, "401: The ClientID is not valid")
 	}
 	//ensure that the eventID exists
-	err = s.cbConn.EventEnsure(in.ClientId, in.EventId)
+	err = s.cbConn.EventEnsure(in.ClientId, in.EventId, document)
 	if err != nil {
 		//an error ensuring that the event be added to couchbase
 		if err == gocb.ErrTimeout {
@@ -264,7 +264,7 @@ func Init(cbCon string) error {
 
 	serve2 := server{
 		theProd: prod,
-		cbConn:  &cb.Couchbase{Doc: &cb.Doc{}},
+		cbConn:  &cb.Couchbase{},
 	}
 	err = serve2.cbConn.ConnectToCB(cbCon)
 	if err != nil {
