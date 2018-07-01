@@ -63,10 +63,7 @@
 
 [[projects]]
   name = "github.com/joho/godotenv"
-  packages = [
-    ".",
-    "autoload"
-  ]
+  packages = ["."]
   revision = "a79fa1e548e2c689c241d10173efd51e5d689d5b"
   version = "v1.2.0"
 
