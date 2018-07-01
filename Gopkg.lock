@@ -20,12 +20,6 @@
   version = "v1.1.0"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/dixonwille/golang-template"
-  packages = ["rpc/serviceName"]
-  revision = "db492f6848d6b0116801be4f29a6ff1e96d97bfc"
-
-[[projects]]
   name = "github.com/eapache/go-resiliency"
   packages = ["breaker"]
   revision = "ea41b0fad31007accc7f806884dcdf3da98b79ce"
@@ -68,17 +62,8 @@
   version = "0.2"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/ianschenck/envflag"
-  packages = ["."]
-  revision = "9111d830d133f952887a936367fb0211c3134f0d"
-
-[[projects]]
   name = "github.com/joho/godotenv"
-  packages = [
-    ".",
-    "autoload"
-  ]
+  packages = ["."]
   revision = "a79fa1e548e2c689c241d10173efd51e5d689d5b"
   version = "v1.2.0"
 
@@ -199,6 +184,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "eaca5b05980a174c49ab7c7fba0fc21d42d15175f0739fc6c54a0af36d0822c5"
+  inputs-digest = "89f8e856ac1627c3011a7fccc6f63ffc9461d506d4bad33eeaeef864072befbd"
   solver-name = "gps-cdcl"
   solver-version = 1
