@@ -7,6 +7,7 @@ WORKDIR /go/src/github.com/acstech/doppler-events/
 COPY . .
 ENV CGO_ENABLED=0
 RUN go build -o ./grpcTest -ldflags "-s -w" github.com/acstech/doppler-events/cmd/grpcTEST
+<<<<<<< HEAD
 # move the build file into the final docker image
 FROM alpine:latest
 COPY --from=builder /go/src/github.com/acstech/doppler-events/grpcTest /opt/service/
@@ -39,3 +40,10 @@ COPY Gopkg.toml /go/src/github.com/acstech/doppler-events/Gopkg.toml
 EXPOSE 8080
 CMD ["/go/src/github.com/acstech/doppler-events/serviceStart"] 
 >>>>>>> first working and very inefficient prototype
+=======
+# move the build file into the final docker image
+FROM alpine:latest
+COPY --from=builder /go/src/github.com/acstech/doppler-events/grpcTest /opt/service/
+EXPOSE 8080
+CMD ["//opt/service/grpcTest"] 
+>>>>>>> Updated docker images
