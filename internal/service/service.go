@@ -17,7 +17,6 @@ import (
 	cb "github.com/acstech/doppler-events/internal/couchbase"
 	pb "github.com/acstech/doppler-events/rpc/eventAPI"
 	"github.com/couchbase/gocb"
-	ptype "github.com/golang/protobuf/ptypes"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -157,20 +156,20 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 		}
 		return nil, status.Error(codes.InvalidArgument, "401: Invalid input: "+errorMSG[:len(errorMSG)-2])
 	}
-	//converting protobuf timestap to to a string in format yyyy-MM-DDTHH:mm:ss.SSSZ
-	ts := ptype.TimestampString(in.DateTime)
-	//make sure that the timestamp is before now
-	now, err := ptype.TimestampProto(time.Now())
-	if err != nil {
-		return nil, status.Error(codes.Internal, "504: Unable to get the proper time")
-	}
-	tempTime, err := ptype.Timestamp(in.DateTime)
-	if err != nil {
-		return nil, status.Error(codes.Internal, "401: Unable to get the proper time")
-	}
-	if tempTime.After(time.Now()) {
-		ts = ptype.TimestampString(now)
-	}
+	// //converting protobuf timestap to to a string in format yyyy-MM-DDTHH:mm:ss.SSSZ
+	// ts := ptype.TimestampString(in.DateTime)
+	// //make sure that the timestamp is before now
+	// now, err := ptype.TimestampProto(time.Now())
+	// if err != nil {
+	// 	return nil, status.Error(codes.Internal, "504: Unable to get the proper time")
+	// }
+	// tempTime, err := ptype.Timestamp(in.DateTime)
+	// if err != nil {
+	// 	return nil, status.Error(codes.Internal, "401: Unable to get the proper time")
+	// }
+	// if tempTime.After(time.Now()) {
+	// 	ts = ptype.TimestampString(now)
+	// }
 	//convert DisplayRequest to map in order to flatten (needed to flatten for influxDB)
 	//intialize flatJSONMap as placeholder for marshal
 	flatJSONMap := make(map[string]string)
@@ -201,7 +200,7 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 	//will always have clientID, eventID, dateTime
 	flatJSONMap["clientID"] = in.ClientId
 	flatJSONMap["eventID"] = in.EventId
-	flatJSONMap["dateTime"] = ts
+	// flatJSONMap["dateTime"] = ts
 	//loop across dataSet map and add key and value to flatJSON
 	for key, value := range in.DataSet {
 		if key == "lat" {
