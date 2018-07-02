@@ -29,7 +29,8 @@ const (
 	address = ":8080"
 )
 
-type ErrorRes struct {
+// errorRes is a list of errors that occur while validating data
+type errorRes struct {
 	err    error
 	errMes []string
 }
@@ -55,8 +56,8 @@ func (e *errorString) Error() string {
 }
 
 //verifyConstraints checks the attributes for in incoming request, verfies valid data
-func verifyConstraints(req *pb.DisplayRequest) ErrorRes {
-	var errRes ErrorRes
+func verifyConstraints(req *pb.DisplayRequest) errorRes {
+	var errRes errorRes
 	//check length of EventId
 	if len(req.EventId) > 35 {
 		errRes.errMes = append(errRes.errMes, "EventId must be less than 35 characters")
