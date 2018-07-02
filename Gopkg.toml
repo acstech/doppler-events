@@ -30,16 +30,8 @@
   version = "1.17.0"
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/dixonwille/golang-template"
-
-[[constraint]]
   name = "github.com/golang/protobuf"
   version = "1.1.0"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/ianschenck/envflag"
 
 [[constraint]]
   name = "github.com/joho/godotenv"
