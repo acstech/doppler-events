@@ -1,4 +1,5 @@
 # hide everything you don't want
+<<<<<<< HEAD
 tests/
 data/
 cmd/testend
@@ -6,3 +7,14 @@ cmd/unittests
 .env
 .gitignore
 docker-compose.yml
+=======
+*
+# keep what you want
+!cmd/grpcTEST/serviceStart.go
+!internal/couchbase/couchbaseConn.go
+!internal/service/service.go
+!rpc/eventAPI/eventAPI.pb.go
+!vendor/*
+!Gopkg.toml
+!Gopkg.lock
+>>>>>>> small deployment image

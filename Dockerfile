@@ -2,6 +2,7 @@
 FROM golang:latest as builder
 WORKDIR /go/src/github.com/acstech/doppler-events/
 <<<<<<< HEAD
+<<<<<<< HEAD
 # copy all the needed files for the program
 COPY . .
 ENV CGO_ENABLED=0
@@ -14,17 +15,10 @@ EXPOSE 8080
 CMD ["./entrypoint.sh"] 
 =======
 # copy the rpc file to the build directory 
+=======
+# copy all the needed files for the program
+>>>>>>> small deployment image
 COPY . /go/src/github.com/acstech/doppler-events/
-# copy the backend server starter to the build directory
-# COPY cmd/grpcTEST/serviceStart.go /go/src/github.com/acstech/doppler-events/cmd/grpcTEST/serviceStart.go
-# # # copy the couchbase connector to the build directory
-# COPY internal/couchbase/couchbaseConn.go /go/src/github.com/acstech/doppler-events/internal/couchbase/couchbaseConn.go
-# # # copy the backend server to the build directory
-# COPY internal/service/service.go /go/src/github.com/acstech/doppler-events/internal/service/service.go
-# # copy dependencies and their trackers to the build directory
-# COPY vendor/* ./vendor/
-# COPY Gopkg.lock .
-# COPY Gopkg.toml .
 RUN CGO_ENABLED=0 GOOS=linux go build /go/src/github.com/acstech/doppler-events/cmd/grpcTEST/serviceStart.go
 # move the build file into the final docker image
 FROM alpine:latest  
