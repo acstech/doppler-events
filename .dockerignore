@@ -1,0 +1,10 @@
+# hide everything you don't want
+*
+# keep what you want
+!cmd/grpcTEST/serviceStart.go
+!internal/couchbase/couchbaseConn.go
+!internal/service/service.go
+!rpc/eventAPI/eventAPI.pb.go
+!vendor/*
+!Gopkg.toml
+!Gopkg.lock
