@@ -9,21 +9,14 @@ These instructions will get you a copy of the project up and running on your loc
 
 
 * [go](https://golang.org/doc/install) (written for go1.10.3)
-
 * [Docker-compose](https://docs.docker.com/compose/install/#install-compose)
-
-* live website server of choice ([npm static-server](https://www.npmjs.com/package/static-server), atom-live-server, etc.)
-
-***Optional***
-
-* [npm](https://www.npmjs.com/get-npm) (Only if you are using static-server)
 
 
 ### Installing
 
 Setting up the evironment
 
-In directory of your choice, clone Docker-Events (Backend API/Producer), Docker-API (Frontend API/Consumer), and Docker-Frontend (Frontend)
+In directory of your choice, clone Doppler-Events (Backend API/Producer), Doppler-API (Frontend API/Consumer), and Doppler-Frontend (Frontend)
 
 
 ```
@@ -32,10 +25,28 @@ git clone https://github.com/acstech/doppler-api.git
 git clone https://github.com/acstech/doppler-frontend.git
 ```
 
+**Inital Docker Setup**
+
+In doppler-events run  `docker build . -t acst/doppler-events:latest`
+
+In doppler-api run `docker build . -t acst/doppler-api:latest`
+
+In doppler-frontend run `docker build . -t acst/doppler-frontend:latest`
+
 In doppler-events directory:
+
+Run `docker-compose up -d` 
+
+Run `docker-compose ps` to make sure all services are up
+
+Example output: 
+
+``` 
+Name                                  Command                      State     Ports                         
+----------------------------------------------------------------------------------------------------------
+doppler-events_doppler-api_1       ./entrypoint.sh                  Up      0.0.0.0:8000->8000/tcp 
 ```
-docker-compose up -d
-```
+
 **Kafka Setup**
 
 Map "Kafka" to localhost in your host file
@@ -49,9 +60,9 @@ Map "Kafka" to localhost in your host file
 
 **Couchbase Setup**
 
-After docker is finished installing, visit localhost:8091 in your browser to set up Couchbase
+After docker is finished starting up Couchbase, visit the host:port, specified in the docker-compose.yml, file in your browser to set up Couchbase (the default host and port are localhost and 8091)
 
-_Note: Couchbase can take up to a minute after docker is running to be served to localhost._
+_Note: Couchbase can take up to a minute after docker is running to be served to the specified host._
 
 Create an account with a username and password of your choice.
 
@@ -59,7 +70,7 @@ Go to Buckets and Add Bucket (Top right)
 
 Create a bucket (save the bucket name you give it somewhere) and configure the memory to your liking. 256 MB is recommended.
 
-Create a client that only had read and write permissions on that same bucket using the security tab. (Located under Data Roles->Data Writer and Data Roles-> Data Reader)
+Create a user that only had read and write permissions on that same bucket using the security tab. (Located under Data Roles->Data Writer and Data Roles-> Data Reader)
 
 Create a document and name it with the following format without brackets:
 	
@@ -71,52 +82,20 @@ In the JSON for the document, add the client name and an empty Events array and 
     	"ID":"YourClientName",
         "Events":[]
     }
-    
-In the doppler-events/data/couchbase/ directory, copy the .env.default file and put it in the base directory (doppler-events)
 
-Remove “.default” from the filename.
+**Final Docker Setup**
 
-Edit the file and replace fields with appropriate information
-
-Example:
-```
-### Couchbase
-export COUCHBASE_CONN="couchbase://ExampleUserName:topS3cretPassword123@localhost/YourBucket”
-```
-
-Copy the same .env file and place it in the root of the doppler-api directory
-
-**Frontend Setup**
-
-Serve your website using live-server of your choice.
-
-Example using static-server on npm (Must have [npm](https://www.npmjs.com/get-npm) installed):
-
-    To install static-server: npm -g install static-server
-	In the doppler-frontend directory, run the command: static-server
-
-**Start backend API**
-
-From the doppler-events directory:
-		
-   	go run cmd/grpcTEST/serviceStart.go
-
-**Start frontend api**
-
-From the doppler-api directory:
-
-	go run cmd/doppler-api/main.go
-
-***Note: It is important that the last two commands are run from their respective base directories, as is.*** 
-
-
-
+Open doppler-events/docker-compose.yml and make sure that the frontend, doppler-events, and doppler-api services have the appropraite environment variables set.
 
 ## Running the tests
 
-At this point, if you have had no error messages come up, everything is standing up. Visit the location you served the front-end to (127.0.0.1:9080 if you used static-server) in your browser and enter in your clientID. Settings can be found by clicking the hamburger icon on the top left.
+At this point, if you have had no error messages come, everything is standing up. Visit the location you served the front-end to (127.0.0.1:9080 by default) in your browser and enter in your clientID. Settings can be found by clicking the hamburger icon on the top left.
 
-Now lets try sending it some test data. Edit the doppler-events/cmd/testsend/testSend.go on line 29 and 30 add your client and eventIDs. Then run the testSend.go file. go run testSend.go. You can now go to your map and view the test data send. 
+Now lets try sending it some test data. Edit the doppler-events/cmd/testsend/testSend.go on line 29 and 30 add your client and eventIDs. Then run the testSend.go file: go run testSend.go. You can now go to your map and view the test data send. 
+
+## Local Development and Testing
+
+TODO
 
 ## Deployment
 
@@ -126,6 +105,7 @@ TODO
 
 * [go](https://golang.org/) - Backend
 * [kafka](http://kafka.apache.org/) - Messaging Queue
+* [influx-sink](https://lenses.stream/connectors/sink/influx.html) - Used to sink data from kafka into Influx
 * [influxDB](https://www.influxdata.com/) - Used to store time based data
 * [Couchbase](https://www.couchbase.com/) - Used to store clients and events
 * [jQuery](https://jquery.com/) - Front End
