@@ -119,3 +119,38 @@ services:
       CONNECTOR_CONNECT_INFLUX_PASSWORD: "root"
       CONNECTOR_CONNECT_INFLUX_KCQL: "INSERT INTO \"dopplerDataHistory\" SELECT \"lat\", \"lng\" FROM \"influx-topic\" WITHTIMESTAMP \"dateTime\" WITHTAG(\"clientID\", \"eventID\")"
       CONNECTOR_CONNECT_INFLUX_RETENTION_POLICY: "sixMonths"
+
+  wait:
+      image: waisbrot/wait
+      links:
+        - couchbase
+        - kafka
+      environment:
+        - TARGETS=kafka:9092,couchbase:8091
+  doppler-events:
+    image: acst/doppler-events:latest
+    hostname: doppler_events
+    depends_on:
+      - kafka
+      - couchbase
+      - wait
+    ports:
+     - "8080:8080" # same as port specified in the environment variable
+    environment:
+      COUCHBASE_CONN: "couchbase://validator:rotadilav@couchbase/doppler"
+      KAFKA_CONN: "//kafka:9092/inflx-topic"
+      API_ADDRESS: ":8080"
+    
+  doppler-api:
+    image: acst/doppler-api:latest
+    hostname: doppler_api
+    depends_on:
+      - kafka
+      - couchbase
+      - wait
+    ports:
+    - "8000:8000" # same as port specified in the environment variable
+    environment:
+      COUCHBASE_CONN: "couchbase://validator:rotadilav@couchbase/doppler"
+      KAFKA_CONN: "//kafka:9092/inflx-topic"
+   
