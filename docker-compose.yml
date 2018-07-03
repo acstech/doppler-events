@@ -138,11 +138,21 @@ services:
       - couchbase
     ports:
     - "8000:8000" # same as port specified in the environment variable
+<<<<<<< HEAD
     env_file:
       - doppler-base.env
+=======
+    environment:
+      COUCHBASE_CONN: "couchbase://validator:rotadilav@couchbase/doppler"
+      KAFKA_CONN: "//kafka:9092/inflx-topic"
+>>>>>>> Updated docker files and made sure that they all work together
   
   frontend:
     image: acst/doppler-frontend:latest
     hostname: frontend
     ports: 
+<<<<<<< HEAD
     - "9080:80"
+=======
+    - "9080:80"
+>>>>>>> Updated docker files and made sure that they all work together

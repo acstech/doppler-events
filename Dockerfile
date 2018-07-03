@@ -10,4 +10,8 @@ FROM alpine:latest
 COPY --from=builder /go/src/github.com/acstech/doppler-events/grpcTest /opt/service/
 COPY ./entrypoint.sh .
 EXPOSE 8080
+<<<<<<< HEAD
 CMD ["./entrypoint.sh"] 
+=======
+CMD ["./entrypoint.sh"] 
+>>>>>>> Updated docker files and made sure that they all work together
