@@ -1,7 +1,6 @@
 package main
 
 import (
-<<<<<<< HEAD
 	"errors"
 	"net/url"
 	"os"
@@ -11,15 +10,6 @@ import (
 )
 
 func main() {
-	//get config variables
-	cbConn := os.Getenv("COUCHBASE_CONN")
-	address := os.Getenv("API_ADDRESS")
-	kafkaConn, kafkaTopic, err := kafkaParse(os.Getenv("KAFKA_CONN"))
-	if err != nil {
-		panic(err)
-	}
-	//pass config variables so that they can be used later
-	err = service.Init(cbConn, kafkaConn, kafkaTopic, address)
 	//get config variables
 	cbConn := os.Getenv("COUCHBASE_CONN")
 	address := os.Getenv("API_ADDRESS")
