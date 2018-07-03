@@ -4,8 +4,6 @@ import (
 <<<<<<< HEAD
 	"errors"
 	"net/url"
-=======
->>>>>>> Updated docker images
 	"os"
 
 	"github.com/acstech/doppler-events/internal/service"
@@ -13,7 +11,6 @@ import (
 )
 
 func main() {
-<<<<<<< HEAD
 	//get config variables
 	cbConn := os.Getenv("COUCHBASE_CONN")
 	address := os.Getenv("API_ADDRESS")
@@ -23,17 +20,15 @@ func main() {
 	}
 	//pass config variables so that they can be used later
 	err = service.Init(cbConn, kafkaConn, kafkaTopic, address)
-=======
-	// err := godotenv.Load()
-	// if err != nil {
-	// 	fmt.Println("Error loading .env file")
-	// 	panic(err)
-	// }
 	//get config variables
 	cbConn := os.Getenv("COUCHBASE_CONN")
+	address := os.Getenv("API_ADDRESS")
+	kafkaConn, kafkaTopic, err := kafkaParse(os.Getenv("KAFKA_CONN"))
+	if err != nil {
+		panic(err)
+	}
 	//pass config variables so that they can be used later
-	err := service.Init(cbConn)
->>>>>>> Updated docker images
+	err = service.Init(cbConn, kafkaConn, kafkaTopic, address)
 	// if an error occurred in itialization, shutdown the server
 	if err != nil {
 		panic(err)
