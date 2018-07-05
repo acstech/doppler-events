@@ -24,20 +24,17 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-//intialize addressess of where server listens with format IP:Port
-const (
-	address = ":8080"
-)
-
-type ErrorRes struct {
+// errorRes is a list of errors that occur while validating data
+type errorRes struct {
 	err    error
 	errMes []string
 }
 
 //struct to hold parameters for server
 type server struct {
-	theProd sarama.AsyncProducer
-	cbConn  *cb.Couchbase
+	theProd    sarama.AsyncProducer
+	cbConn     *cb.Couchbase
+	kafkaTopic string
 }
 
 // New returns an error that formats as the given text.
@@ -55,8 +52,8 @@ func (e *errorString) Error() string {
 }
 
 //verifyConstraints checks the attributes for in incoming request, verfies valid data
-func verifyConstraints(req *pb.DisplayRequest) ErrorRes {
-	var errRes ErrorRes
+func verifyConstraints(req *pb.DisplayRequest) errorRes {
+	var errRes errorRes
 	//check length of EventId
 	if len(req.EventId) > 35 {
 		errRes.errMes = append(errRes.errMes, "EventId must be less than 35 characters")
@@ -107,7 +104,7 @@ func verifyConstraints(req *pb.DisplayRequest) ErrorRes {
 }
 
 //newProducer configures an asynchronous kafka producer client, returns it
-func newProducer() (sarama.AsyncProducer, error) {
+func newProducer(address string) (sarama.AsyncProducer, error) {
 	sarama.Logger = log.New(os.Stdout, "[sarama] ", log.LstdFlags)
 	// Setup configuration
 	config := sarama.NewConfig()
@@ -120,7 +117,7 @@ func newProducer() (sarama.AsyncProducer, error) {
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
 	// The level of acknowledgement reliability needed from the broker.
 	config.Producer.RequiredAcks = sarama.WaitForAll
-	brokers := []string{"localhost:9092"}
+	brokers := []string{address}
 	producer, err := sarama.NewAsyncProducer(brokers, config)
 	if err != nil {
 		// Should not reach here
@@ -133,7 +130,7 @@ func newProducer() (sarama.AsyncProducer, error) {
 func (prod *server) sendToQueue(JSONob []byte) {
 	// create message to be sent to kafka
 	msg := &sarama.ProducerMessage{
-		Topic: "influx-topic",
+		Topic: prod.kafkaTopic,
 		Value: sarama.ByteEncoder(JSONob),
 		//Partition: 1, //partNum,
 	}
@@ -242,7 +239,7 @@ func (s *server) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.Di
 // cbCon is the connection string for couchbase
 // returns an error if any occur while creating a kafka producer, a couchbase connection, sending data,
 // or closing the kafka producer
-func Init(cbCon string) error {
+func Init(cbCon, kafkaCon, kafkaTopic, address string) error {
 	//initialize listener on server address
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
@@ -250,7 +247,7 @@ func Init(cbCon string) error {
 	}
 	//initialize server
 	s := grpc.NewServer()
-	prod, err := newProducer()
+	prod, err := newProducer(kafkaCon)
 	if err != nil {
 		return fmt.Errorf("failed to create Kafka producer connection: %v", err)
 	}
@@ -263,8 +260,9 @@ func Init(cbCon string) error {
 	}()
 
 	serve2 := server{
-		theProd: prod,
-		cbConn:  &cb.Couchbase{},
+		theProd:    prod,
+		cbConn:     &cb.Couchbase{},
+		kafkaTopic: kafkaTopic,
 	}
 	err = serve2.cbConn.ConnectToCB(cbCon)
 	if err != nil {
