@@ -1,2 +1,0 @@
-Attaching to doppler-events_doppler-api_1
-[36mdoppler-api_1      |[0m standard_init_linux.go:190: exec user process caused "no such file or directory"

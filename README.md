@@ -25,6 +25,10 @@ git clone https://github.com/acstech/doppler-api.git
 git clone https://github.com/acstech/doppler-frontend.git
 ```
 
+**Environment Variables**
+
+Copy each [name].env.defualt from doppler-events/data/couchbase to the doppler-events/ , remove .default from the name, and fill out the appropriate environment varaibles.
+
 **Inital Docker Setup**
 
 In doppler-events run  `docker build . -t acst/doppler-events:latest`
