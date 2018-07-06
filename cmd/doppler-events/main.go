@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"os/signal"
 
 	cb "github.com/acstech/doppler-events/internal/couchbase"
 	"github.com/acstech/doppler-events/internal/service"
@@ -18,6 +19,9 @@ func main() {
 	// Create signals and done channel to handle graceful shutdown of server
 	signals := make(chan os.Signal, 1)
 	done := make(chan bool, 1)
+
+	// Notify signals channel for any outside signals
+	signal.Notify(signals)
 
 	// Wait for any signals to happen, such as interrupts
 	go func() {
