@@ -8,7 +8,7 @@ import (
 )
 
 //newProducer configures an asynchronous kafka producer client, returns it
-func newProducer() (sarama.AsyncProducer, error) {
+func newProducer(address string) (sarama.AsyncProducer, error) {
 	sarama.Logger = log.New(os.Stdout, "[sarama] ", log.LstdFlags)
 	// Setup configuration
 	config := sarama.NewConfig()
@@ -21,7 +21,7 @@ func newProducer() (sarama.AsyncProducer, error) {
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
 	// The level of acknowledgement reliability needed from the broker.
 	config.Producer.RequiredAcks = sarama.WaitForAll
-	brokers := []string{"localhost:9092"}
+	brokers := []string{address}
 	producer, err := sarama.NewAsyncProducer(brokers, config)
 	if err != nil {
 		// Should not reach here
