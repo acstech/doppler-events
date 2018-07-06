@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"os"
 	"strconv"
 	"time"
 
@@ -107,6 +108,41 @@ func Simulate() {
 	}
 }
 
+//Repeat creates a set number of point locations then iterates through them, rehitting an area multiple times
+func Repeat() {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	clientID := clientIDs[r.Int31n(int32(len(clientIDs)))] //pick random client from clientIDs slice
+	eventID := eventIDs[r.Int31n(int32(len(eventIDs)))]    //pick random event from eventIDs slice
+	var locations []map[string]string
+	for x := 0; x < 200; x++ {
+		lat := (r.Float64() - .5) * 180 //get random lat
+		lng := (r.Float64() - .5) * 360 //get random lng
+
+		dataSet := make(map[string]string, 2)
+		dataSet["lat"] = strconv.FormatFloat(lat, 'g', -1, 64)
+		dataSet["lng"] = strconv.FormatFloat(lng, 'g', -1, 64)
+		locations = append(locations, dataSet)
+	}
+	for y := 0; y < 600; y++ {
+		a := rand.Intn(200)
+
+		//get current time
+		dateTime := ptypes.TimestampNow()
+		//send data to server, returns response and error
+		_, err := c.DisplayData(context.Background(), &pb.DisplayRequest{
+			ClientId: clientID,
+			EventId:  eventID,
+			DateTime: dateTime,
+			DataSet:  locations[a],
+		})
+		if err != nil {
+			fmt.Println("error")
+		}
+	}
+
+}
+
 //Load sends infinite random points to the API
 func Load() {
 	//get true random
@@ -130,6 +166,8 @@ func Load() {
 
 func main() {
 
+	args := os.Args[1:]
+
 	//data point variables
 	clientIDs = []string{"client0", "client1", "client2"} //In order for test to work, couchbase must contain all 3 clients
 	eventIDs = []string{"physical check in", "mobile login", "rest"}
@@ -139,8 +177,22 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	Simulate()
-	Load()
+
+	if len(args) == 0 {
+		fmt.Println("usage: testsend.go -l [load test] -s [simulation test] -p [repeat point test]")
+	} else {
+		for a := 0; a < len(args); a++ {
+			if args[a] == "-l" {
+				Load()
+			}
+			if args[a] == "-s" {
+				Simulate()
+			}
+			if args[a] == "-p" {
+				Repeat()
+			}
+		}
+	}
 }
 
 //takes client data, sends it to over connection
