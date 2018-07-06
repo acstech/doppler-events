@@ -33,14 +33,6 @@ _Note: anything with an underscore in the name should be replaced with the appro
 
 **Docker Setup**
 
-In doppler-events run  `docker build . -t acst/doppler-events:latest`
-
-In doppler-api run `docker build . -t acst/doppler-api:latest`
-
-In doppler-frontend run `docker build . -t acst/doppler-frontend:latest`
-
-These docker build commands are also available [here](https://github.com/acstech/doppler-events/wiki/Build-Commands).
-
 In doppler-events directory:
 
 Run `docker-compose up -d` 
@@ -101,7 +93,15 @@ Now lets try sending it some test data. Edit the doppler-events/cmd/testsend/tes
 
 ## Local Development and Testing
 
-Whenever a file changes inside of any of the three repos (doppler-api, doppler-events, doppler-frontend), the appropriate [docker build command](https://github.com/acstech/doppler-events/wiki/Build-Commands) will need to be run.
+Whenever a file changes inside of any of the three repos (doppler-api, doppler-events, doppler-frontend), the appropriate docker build command will need to be run.
+
+In doppler-events run docker build . -t acstintern/doppler-events:latest
+
+In doppler-api run docker build . -t acstintern/doppler-api:latest
+
+In doppler-frontend run docker build . -t acstintern/doppler-frontend:latest
+
+And make sure that the docker-compose.yml file has either ':' or ':latest' after the doppler services, which correspond to the different repositories.
 
 Then run `docker-compose up -d` and proceed to checkout the new changes.
 
