@@ -43,15 +43,7 @@ func (s *Service) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.D
 	//intialize flatJSONMap as placeholder for marshal
 	flatJSONMap := make(map[string]string)
 	//check to make sure that the ClientID exists
-<<<<<<< HEAD
-<<<<<<< HEAD
 	cont, document, err := s.CbConn.ClientExists(in.ClientId)
-=======
-	cont, document, err := s.cbConn.ClientExists(in.ClientId)
->>>>>>> Refactored service.go
-=======
-	cont, document, err := s.CbConn.ClientExists(in.ClientId)
->>>>>>> Fixed refactoring bugs
 	if err != nil {
 		if err == gocb.ErrTimeout {
 			return nil, status.Error(codes.Internal, "501: Unable to validate clientID")
