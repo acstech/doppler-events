@@ -3,6 +3,5 @@ tests/
 data/
 cmd/testend
 cmd/unittests
-.env
 .gitignore
 docker-compose.yml

@@ -27,21 +27,17 @@ git clone https://github.com/acstech/doppler-frontend.git
 
 **Environment Variables**
 
-Copy each [name].env.defualt from doppler-events/data/couchbase to the doppler-events/ , remove .default from the name, and fill out the appropriate environment varaibles.
+Rename the doppler-base.env.default file to doppler-base.env and fill out the environment variables by following the comments.
 
-**Inital Docker Setup**
+_Note: anything with an underscore in the name should be replaced with the appropriate value (ip and port need to be changed as well)._
 
-In doppler-events run  `docker build . -t acst/doppler-events:latest`
-
-In doppler-api run `docker build . -t acst/doppler-api:latest`
-
-In doppler-frontend run `docker build . -t acst/doppler-frontend:latest`
+**Docker Setup**
 
 In doppler-events directory:
 
 Run `docker-compose up -d` 
 
-Run `docker-compose ps` to make sure all services are up
+Run `docker-compose ps` to make sure all services are up except doppler-api and doppler-events because couchbase has not yet been setup.
 
 Example output: 
 
@@ -87,9 +83,7 @@ In the JSON for the document, add the client name and an empty Events array and 
         "Events":[]
     }
 
-**Final Docker Setup**
-
-Open doppler-events/docker-compose.yml and make sure that the frontend, doppler-events, and doppler-api services have the appropraite environment variables set.
+Make sure to run `docker-compose up -d` again becuase doppler-api and doppler-events crashed due to not being able to connect to couchbase.
 
 ## Running the tests
 
@@ -99,7 +93,19 @@ Now lets try sending it some test data. Edit the doppler-events/cmd/testsend/tes
 
 ## Local Development and Testing
 
-TODO
+Whenever a file changes inside of any of the three repos (doppler-api, doppler-events, doppler-frontend), the appropriate docker build command will need to be run.
+
+In doppler-events run docker build . -t acstintern/doppler-events:latest
+
+In doppler-api run docker build . -t acstintern/doppler-api:latest
+
+In doppler-frontend run docker build . -t acstintern/doppler-frontend:latest
+
+And make sure that the docker-compose.yml file has either ':' or ':latest' after the doppler services, which correspond to the different repositories.
+
+Then run `docker-compose up -d` and proceed to checkout the new changes.
+
+To send data all the way through, at this point, run `go run cmd/testsend/testSend.go`. 
 
 ## Deployment
 
@@ -113,6 +119,8 @@ TODO
 * [influxDB](https://www.influxdata.com/) - Used to store time based data
 * [Couchbase](https://www.couchbase.com/) - Used to store clients and events
 * [jQuery](https://jquery.com/) - Front End
+* [Bootstrap](https://getbootstrap.com/) - Frontend css
+* [Leaflet](https://leafletjs.com/index.html) - Frontend heatmap
 
 ## Contributing
 
