@@ -22,7 +22,7 @@ services:
     ports:
     - "9092:9092" # Connection port
     env_file:
-      - kafka.env
+      - doppler-base.env
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -84,7 +84,7 @@ services:
      - "9093:9092" # Producer connection
      - "9102:9102"
     env_file:
-      - influx.env
+      - doppler-base.env
     environment:
       # kafka connect
       CONNECT_BOOTSTRAP_SERVERS: 'kafka:9092'
@@ -128,7 +128,6 @@ services:
      - "8080:8080" # same as port specified in the environment variable
     env_file:
       - doppler-base.env
-      - doppler-events.env
 
   doppler-api:
     image: acst/doppler-api:latest
@@ -140,7 +139,7 @@ services:
     - "8000:8000" # same as port specified in the environment variable
     env_file:
       - doppler-base.env
-  
+      
   frontend:
     image: acst/doppler-frontend:latest
     hostname: frontend
