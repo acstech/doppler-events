@@ -4,17 +4,12 @@ package service
 
 import (
 	"fmt"
-	//"net"
+	"net"
 
 	"github.com/Shopify/sarama"
 	cb "github.com/acstech/doppler-events/internal/couchbase"
-	//pb "github.com/acstech/doppler-events/rpc/eventAPI"
-	//"google.golang.org/grpc"
-)
-
-// Initialize addressess of where server listens with format IP:Port
-const (
-	Address = ":8080"
+	// pb "github.com/acstech/doppler-events/rpc/eventAPI"
+	"google.golang.org/grpc"
 )
 
 // Struct to hold parameters for server
@@ -22,6 +17,7 @@ type Service struct {
 	errorResponse ErrorRes
 	producer      sarama.AsyncProducer
 	CbConn        *cb.Couchbase
+	kafkaTopic    string
 }
 
 // Error struct for verifying constraints
@@ -34,20 +30,21 @@ type ErrorRes struct {
 // cbCon is the connection string for couchbase
 // returns an error if any occur while creating a kafka producer, a couchbase connection, sending data,
 // or closing the kafka producer
-func Init() (*Service, error) {
+func Init(kafkaCon, kafkaTopic, address string) (*Service, error) {
+	// Create instance of empty ErrorRes struct
 	e := ErrorRes{}
 
 	// Initialize listener on server address
-	// lis, err := net.Listen("tcp", address)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("failed to listen: %v", err)
-	// }
+	lis, err := net.Listen("tcp", address)
+	if err != nil {
+		return nil, fmt.Errorf("failed to listen: %v", err)
+	}
 
 	// Initialize grpc server
-	//grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer()
 
 	// Create a new Kafka producer
-	prod, err := newProducer()
+	prod, err := newProducer(kafkaCon)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create Kafka producer connection: %v", err)
 	}
@@ -66,18 +63,20 @@ func Init() (*Service, error) {
 	// }
 
 	//register server to grpc
-	//pb.RegisterEventAPIServer(grpcServer, &serve2)
+	// pb.RegisterEventAPIServer(grpcServer, &serve2)
 	// Register reflection service on gRPC server for back and forth communication. Kept for future use if necessary
 	// reflection.Register(s)
 
 	//tells the server to process the incoming messages, checks if failed to serve
-	// if err := grpcServer.Serve(lis); err != nil {
-	// 	return nil, fmt.Errorf("failed to serve: %v", err)
-	// }
+	if err := grpcServer.Serve(lis); err != nil {
+		return nil, fmt.Errorf("failed to serve: %v", err)
+	}
 
+	fmt.Println("Everything done!")
 	return &Service{
 		errorResponse: e,
 		producer:      prod,
 		CbConn:        &cb.Couchbase{},
+		kafkaTopic:    kafkaTopic,
 	}, nil
 }
