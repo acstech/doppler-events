@@ -139,7 +139,9 @@ services:
     - "8000:8000" # same as port specified in the environment variable
     env_file:
       - doppler-base.env
-    image: acst/doppler-frontend:latest
+
+  frontend:
+    image: acstintern/doppler-frontend:latest
     hostname: frontend
     ports: 
     - "9080:80"
