@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 
+	cb "github.com/acstech/doppler-events/internal/couchbase"
 	"github.com/acstech/doppler-events/internal/service"
 	pb "github.com/acstech/doppler-events/rpc/eventAPI"
 	_ "github.com/joho/godotenv/autoload"
@@ -14,17 +15,42 @@ import (
 )
 
 func main() {
+	// Create signals and done channel to handle graceful shutdown of server
+	signals := make(chan os.Signal, 1)
+	done := make(chan bool, 1)
+
+	// Wait for any signals to happen, such as interrupts
+	go func() {
+		sig := <-signals
+		fmt.Println(sig)
+		done <- true
+	}()
+
 	// Get config variables
 	connString := os.Getenv("COUCHBASE_CONN")
 	address := os.Getenv("API_ADDRESS")
-	fmt.Println("HERE")
 	kafkaConn, kafkaTopic, err := kafkaParse(os.Getenv("KAFKA_CONN"))
 	if err != nil {
 		panic(err)
 	}
 
+	// Create asynchronous Kafka producer
+	producer, err := newProducer(kafkaConn)
+	if err != nil {
+		panic(err)
+	}
+
+	// Create an empty couchbase connection instance
+	cbConn := &cb.Couchbase{}
+
+	// Connect to couchbase
+	err = cbConn.ConnectToCB(connString)
+	if err != nil {
+		fmt.Println("CB connection error: ", err)
+	}
+
 	// Create an instance of event service
-	eventService, err := service.Init(kafkaConn, kafkaTopic, address)
+	eventService, err := service.NewService(producer, cbConn, kafkaTopic)
 	if err != nil {
 		// Have to create a service instance, so panic if you can't
 		panic(err)
@@ -39,11 +65,16 @@ func main() {
 	// Initialize grpc server
 	grpcServer := grpc.NewServer()
 
-	// Connect to couchbase
-	err = eventService.CbConn.ConnectToCB(connString)
-	if err != nil {
-		fmt.Println("CB connection error: ", err)
-	}
+	// Graceful shutdown of producer, couchbase connection, and gRPC server
+	defer func() {
+		if errt := producer.Close(); errt != nil {
+			err = fmt.Errorf("error closing producer: %v", errt)
+		}
+		if err = cbConn.Bucket.Close(); err != nil {
+			err = fmt.Errorf("error closing couchbase connection: %v", err)
+		}
+		grpcServer.GracefulStop()
+	}()
 
 	// Register service to grpc
 	pb.RegisterEventAPIServer(grpcServer, eventService)
@@ -52,8 +83,13 @@ func main() {
 	if err = grpcServer.Serve(lis); err != nil {
 		fmt.Println("Failed to serve: ", err)
 	}
+
+	// Block until interrupt detected
+	<-done
+	fmt.Println("Exiting")
 }
 
+// Parses env variable to return kafka address and topic
 func kafkaParse(conn string) (string, string, error) {
 	u, err := url.Parse(conn)
 	if err != nil {
