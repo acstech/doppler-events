@@ -31,12 +31,12 @@ func kafkaParse(conn string) (string, string, error) {
 		return "", "", err
 	}
 	if u.Host == "" {
-		return "", "", errors.New("Kafka address is not specified, verify that your environment varaibles are correct")
+		return "", "", errors.New("Kafka address is not specified, verify that your environment variables are correct")
 	}
 	address := u.Host
 	// make sure that the topic is specified
 	if u.Path == "" || u.Path == "/" {
-		return "", "", errors.New("Kafka topic is not specified, verify that your environment varaibles are correct")
+		return "", "", errors.New("Kafka topic is not specified, verify that your environment variables are correct")
 	}
 	topic := u.Path[1:]
 	return address, topic, nil
