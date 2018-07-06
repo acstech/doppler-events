@@ -114,14 +114,12 @@ func Simulate() {
 //Repeat creates a set number of point locations then iterates through them, rehitting an area multiple times
 func Repeat() {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-
 	clientID := clientIDs[r.Int31n(int32(len(clientIDs)))] //pick random client from clientIDs slice
 	eventID := eventIDs[r.Int31n(int32(len(eventIDs)))]    //pick random event from eventIDs slice
 	var locations []map[string]string
 	for x := 0; x < 200; x++ {
 		lat := (r.Float64() - .5) * 180 //get random lat
 		lng := (r.Float64() - .5) * 360 //get random lng
-
 		dataSet := make(map[string]string, 2)
 		dataSet["lat"] = strconv.FormatFloat(lat, 'g', -1, 64)
 		dataSet["lng"] = strconv.FormatFloat(lng, 'g', -1, 64)
@@ -129,7 +127,6 @@ func Repeat() {
 	}
 	for y := 0; y < 1500; y++ {
 		a := rand.Intn(200)
-
 		//get current time
 		dateTime := ptypes.TimestampNow()
 		//send data to server, returns response and error
@@ -143,7 +140,6 @@ func Repeat() {
 			fmt.Println(err)
 		}
 	}
-
 }
 
 //LoadTest sends infinite random points to the API
@@ -196,7 +192,6 @@ func CleanupInflux(theTime int64) {
 }
 
 func main() {
-
 	args := os.Args[1:]
 	cleanup := true
 	//data point variables
