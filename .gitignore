@@ -26,3 +26,6 @@ data/couchbase/*
 *.out
 .env
 *.env
+
+# log file for testing
+logs.txt
