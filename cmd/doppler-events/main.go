@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
-	"syscall"
 
 	cb "github.com/acstech/doppler-events/internal/couchbase"
 	"github.com/acstech/doppler-events/internal/service"
@@ -21,7 +20,8 @@ func main() {
 	signals := make(chan os.Signal, 1)
 	done := make(chan bool, 1)
 
-	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
+	// Notify signals channel for any outside signals
+	signal.Notify(signals)
 
 	// Wait for any signals to happen, such as interrupts
 	go func() {
