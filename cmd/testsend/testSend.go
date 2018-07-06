@@ -183,12 +183,15 @@ func main() {
 	} else {
 		for a := 0; a < len(args); a++ {
 			if args[a] == "-l" {
+				fmt.Println("starting load test...")
 				Load()
 			}
 			if args[a] == "-s" {
+				fmt.Println("starting simulation test...")
 				Simulate()
 			}
 			if args[a] == "-p" {
+				fmt.Println("starting repeat point test...")
 				Repeat()
 			}
 		}
