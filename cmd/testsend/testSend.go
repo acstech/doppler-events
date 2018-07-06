@@ -6,11 +6,14 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 	"time"
 
 	pb "github.com/acstech/doppler-events/rpc/eventAPI" //c meaning client call
 	"github.com/golang/protobuf/ptypes"
+	"github.com/influxdata/influxdb/client/v2"
 	"google.golang.org/grpc"
 )
 
@@ -111,22 +114,19 @@ func Simulate() {
 //Repeat creates a set number of point locations then iterates through them, rehitting an area multiple times
 func Repeat() {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-
 	clientID := clientIDs[r.Int31n(int32(len(clientIDs)))] //pick random client from clientIDs slice
 	eventID := eventIDs[r.Int31n(int32(len(eventIDs)))]    //pick random event from eventIDs slice
 	var locations []map[string]string
 	for x := 0; x < 200; x++ {
 		lat := (r.Float64() - .5) * 180 //get random lat
 		lng := (r.Float64() - .5) * 360 //get random lng
-
 		dataSet := make(map[string]string, 2)
 		dataSet["lat"] = strconv.FormatFloat(lat, 'g', -1, 64)
 		dataSet["lng"] = strconv.FormatFloat(lng, 'g', -1, 64)
 		locations = append(locations, dataSet)
 	}
-	for y := 0; y < 600; y++ {
+	for y := 0; y < 1500; y++ {
 		a := rand.Intn(200)
-
 		//get current time
 		dateTime := ptypes.TimestampNow()
 		//send data to server, returns response and error
@@ -137,14 +137,13 @@ func Repeat() {
 			DataSet:  locations[a],
 		})
 		if err != nil {
-			fmt.Println("error")
+			fmt.Println(err)
 		}
 	}
-
 }
 
-//Load sends infinite random points to the API
-func Load() {
+//LoadTest sends infinite random points to the API
+func LoadTest() {
 	//get true random
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for {
@@ -164,12 +163,34 @@ func Load() {
 	}
 }
 
+//CleanupInflux will go through influx and delete test data points
+func CleanupInflux(theTime int64) {
+	//	influxCon := os.Getenv("INFLUX_CONN")
+	// creates influx client
+	c, err := client.NewHTTPClient(client.HTTPConfig{
+		Addr:     "http://localhost:8086",
+		Username: "username",
+		Password: "password",
+	})
+	if err != nil {
+		panic(fmt.Errorf("error connecting to influx: %v", err))
+	}
+	defer c.Close()
+	time.Sleep(2 * time.Second)
+	curTime := time.Now().UnixNano()
+	now := strconv.FormatInt(curTime, 10)
+	inTime := strconv.FormatInt(theTime, 10)
+	fmt.Printf("delete from dopplerDataHistory where time > %s and time < %s", inTime, now)
+	q := client.NewQuery(fmt.Sprintf("delete from dopplerDataHistory where time > %s and time < %s", inTime, now), "doppler", "ns")
+	if _, err := c.Query(q); err != nil {
+		fmt.Println(err)
+	}
+}
 func main() {
-
 	args := os.Args[1:]
-
+	cleanup := true
 	//data point variables
-	clientIDs = []string{"client0", "client1", "client2"} //In order for test to work, couchbase must contain all 3 clients
+	clientIDs = []string{"client0", "client1"} //In order for test to work, couchbase must contain all 3 clients
 	eventIDs = []string{"physical check in", "mobile login", "rest"}
 	var err error
 	//connect to server
@@ -177,14 +198,23 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	//listens for interrupt, gracefully cleans up
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	startTime := time.Now().UnixNano()
+	time.Sleep(500 * time.Millisecond)
+	go func() {
+		<-sigs
+		os.Exit(1)
+		CleanupInflux(startTime)
+	}()
 	if len(args) == 0 {
-		fmt.Println("usage: testsend.go -l [load test] -s [simulation test] -p [repeat point test]")
+		fmt.Println("usage: testsend.go -l [load test] -s [simulation test] -p [repeat point test] -d [no database cleanup]")
 	} else {
 		for a := 0; a < len(args); a++ {
 			if args[a] == "-l" {
 				fmt.Println("starting load test...")
-				Load()
+				LoadTest()
 			}
 			if args[a] == "-s" {
 				fmt.Println("starting simulation test...")
@@ -194,7 +224,13 @@ func main() {
 				fmt.Println("starting repeat point test...")
 				Repeat()
 			}
+			if args[a] == "-d" {
+				cleanup = false
+			}
 		}
+	}
+	if cleanup {
+		CleanupInflux(startTime)
 	}
 }
 
