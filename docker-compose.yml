@@ -21,12 +21,12 @@ services:
       - zookeeper
     ports:
     - "9092:9092" # Connection port
+    env_file:
+      - kafka.env
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_CREATE_TOPICS: "influx-topic:1:3"
     volumes:
       - ./data/kafka:/var/lib/kafka/data
 
@@ -83,6 +83,8 @@ services:
      - "8083:8083" # Rest API
      - "9093:9092" # Producer connection
      - "9102:9102"
+    env_file:
+      - influx.env
     environment:
       # kafka connect
       CONNECT_BOOTSTRAP_SERVERS: 'kafka:9092'
@@ -107,15 +109,40 @@ services:
       CONNECT_INTERNAL_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
       CONNECT_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       CONNECT_PLUGIN_PATH: /usr/share/java
-      CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
+      CONNECT_LOG4J_LOGGERS: org.apache.zookeeper:ERROR,org.I0Itec.zkclient:ERROR,org.reflections:ERROR
       # Sink Connector for Influx
-      CONNECTOR_TOPICS: "influx-topic"
       CONNECTOR_NAME: "InfluxSink"
       CONNECTOR_CONNECTOR_CLASS: "com.datamountaineer.streamreactor.connect.influx.InfluxSinkConnector"
       CONNECTOR_TASKS_MAX: 1
       CONNECTOR_CONNECT_INFLUX_URL: "http://influx_db:8086"
       CONNECTOR_CONNECT_INFLUX_DB: "doppler"
-      CONNECTOR_CONNECT_INFLUX_USERNAME: root
-      CONNECTOR_CONNECT_INFLUX_PASSWORD: "root"
-      CONNECTOR_CONNECT_INFLUX_KCQL: "INSERT INTO \"dopplerDataHistory\" SELECT \"lat\", \"lng\" FROM \"influx-topic\" WITHTIMESTAMP \"dateTime\" WITHTAG(\"clientID\", \"eventID\")"
       CONNECTOR_CONNECT_INFLUX_RETENTION_POLICY: "sixMonths"
+
+  doppler-events:
+    image: acst/doppler-events:latest
+    hostname: doppler_events
+    depends_on:
+      - kafka
+      - couchbase
+    ports:
+     - "8080:8080" # same as port specified in the environment variable
+    env_file:
+      - doppler-base.env
+      - doppler-events.env
+
+  doppler-api:
+    image: acst/doppler-api:latest
+    hostname: doppler_api
+    depends_on:
+      - kafka
+      - couchbase
+    ports:
+    - "8000:8000" # same as port specified in the environment variable
+    env_file:
+      - doppler-base.env
+  
+  frontend:
+    image: acst/doppler-frontend:latest
+    hostname: frontend
+    ports: 
+    - "9080:80"

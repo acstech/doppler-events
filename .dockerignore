@@ -1,0 +1,8 @@
+# hide everything you don't want
+tests/
+data/
+cmd/testend
+cmd/unittests
+.env
+.gitignore
+docker-compose.yml
