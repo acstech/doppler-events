@@ -142,8 +142,8 @@ func Repeat() {
 	}
 }
 
-//Load sends infinite random points to the API
-func Load() {
+//LoadTest sends infinite random points to the API
+func LoadTest() {
 	//get true random
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for {
@@ -177,7 +177,7 @@ func CleanupInflux(theTime int64) {
 	}
 	defer c.Close()
 
-	time.Sleep(4 * time.Second)
+	time.Sleep(2 * time.Second)
 	curTime := time.Now().UnixNano()
 
 	now := strconv.FormatInt(curTime, 10)
@@ -222,7 +222,7 @@ func main() {
 		for a := 0; a < len(args); a++ {
 			if args[a] == "-l" {
 				fmt.Println("starting load test...")
-				Load()
+				LoadTest()
 			}
 			if args[a] == "-s" {
 				fmt.Println("starting simulation test...")
