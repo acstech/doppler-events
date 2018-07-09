@@ -146,7 +146,7 @@ func Repeat() {
 func LoadTest() {
 	//get true random
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	for {
+	for x := 0; x < 100; x++ {
 		//time.Sleep(3 * time.Millisecond)
 		clientID := clientIDs[r.Int31n(int32(len(clientIDs)))]   //pick random client from clientIDs slice
 		eventID := eventIDs[r.Int31n(int32(len(eventIDs)))]      //pick random event from eventIDs slice
@@ -169,8 +169,8 @@ func CleanupInflux(theTime int64) {
 	// creates influx client
 	c, err := client.NewHTTPClient(client.HTTPConfig{
 		Addr:     "http://localhost:8086",
-		Username: "username",
-		Password: "password",
+		Username: "root",
+		Password: "root",
 	})
 	if err != nil {
 		panic(fmt.Errorf("error connecting to influx: %v", err))
