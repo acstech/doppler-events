@@ -11,6 +11,7 @@ import (
 
 	pb "github.com/acstech/doppler-events/rpc/eventAPI" //c meaning client call
 	"github.com/golang/protobuf/ptypes"
+	"github.com/influxdata/influxdb/client/v2"
 	"google.golang.org/grpc"
 )
 
@@ -143,11 +144,11 @@ func Repeat() {
 
 }
 
-//Load sends infinite random points to the API
-func Load() {
+//LoadTest sends infinite random points to the API
+func LoadTest() {
 	//get true random
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	for {
+	for x := 0; x < 100; x++ {
 		//time.Sleep(3 * time.Millisecond)
 		clientID := clientIDs[r.Int31n(int32(len(clientIDs)))]   //pick random client from clientIDs slice
 		eventID := eventIDs[r.Int31n(int32(len(eventIDs)))]      //pick random event from eventIDs slice
@@ -161,6 +162,31 @@ func Load() {
 		}
 		//print server response
 		log.Println(resp.Response)
+	}
+}
+
+func CleanupInflux(theTime int64) {
+	//	influxCon := os.Getenv("INFLUX_CONN")
+	// creates influx client
+	c, err := client.NewHTTPClient(client.HTTPConfig{
+		Addr:     "http://localhost:8086",
+		Username: "root",
+		Password: "root",
+	})
+	if err != nil {
+		panic(fmt.Errorf("error connecting to influx: %v", err))
+	}
+	defer c.Close()
+	curTime := time.Now().UnixNano()
+
+	now := strconv.FormatInt(curTime, 10)
+	inTime := strconv.FormatInt(theTime, 10)
+
+	fmt.Printf("delete from dopplerDataHistory where time > %s and time < %s", inTime, now)
+	q := client.NewQuery(fmt.Sprintf("delete from dopplerDataHistory where time > %s and time < %s", inTime, now), "doppler", "ns")
+
+	if _, err := c.Query(q); err != nil {
+		fmt.Println(err)
 	}
 }
 
@@ -178,13 +204,15 @@ func main() {
 		log.Fatal(err)
 	}
 
+	startTime := time.Now().UnixNano()
+	time.Sleep(500 * time.Millisecond)
 	if len(args) == 0 {
 		fmt.Println("usage: testsend.go -l [load test] -s [simulation test] -p [repeat point test]")
 	} else {
 		for a := 0; a < len(args); a++ {
 			if args[a] == "-l" {
 				fmt.Println("starting load test...")
-				Load()
+				LoadTest()
 			}
 			if args[a] == "-s" {
 				fmt.Println("starting simulation test...")
@@ -196,6 +224,8 @@ func main() {
 			}
 		}
 	}
+
+	CleanupInflux(startTime)
 }
 
 //takes client data, sends it to over connection
