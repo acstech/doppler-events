@@ -13,7 +13,7 @@ import (
 
 	pb "github.com/acstech/doppler-events/rpc/eventAPI" //c meaning client call
 	"github.com/golang/protobuf/ptypes"
-	"github.com/influxdata/influxdb/client/v2"
+	client "github.com/influxdata/influxdb/client/v2"
 	"google.golang.org/grpc"
 )
 
@@ -142,11 +142,11 @@ func Repeat() {
 	}
 }
 
-//LoadTest sends infinite random points to the API
-func LoadTest() {
+//Load sends infinite random points to the API
+func Load() {
 	//get true random
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	for x := 0; x < 100; x++ {
+	for {
 		//time.Sleep(3 * time.Millisecond)
 		clientID := clientIDs[r.Int31n(int32(len(clientIDs)))]   //pick random client from clientIDs slice
 		eventID := eventIDs[r.Int31n(int32(len(eventIDs)))]      //pick random event from eventIDs slice
@@ -222,7 +222,7 @@ func main() {
 		for a := 0; a < len(args); a++ {
 			if args[a] == "-l" {
 				fmt.Println("starting load test...")
-				LoadTest()
+				Load()
 			}
 			if args[a] == "-s" {
 				fmt.Println("starting simulation test...")
