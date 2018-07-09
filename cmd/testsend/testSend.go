@@ -127,7 +127,7 @@ func Repeat() {
 		dataSet["lng"] = strconv.FormatFloat(lng, 'g', -1, 64)
 		locations = append(locations, dataSet)
 	}
-	for y := 0; y < 600; y++ {
+	for y := 0; y < 1500; y++ {
 		a := rand.Intn(200)
 
 		//get current time
@@ -140,7 +140,7 @@ func Repeat() {
 			DataSet:  locations[a],
 		})
 		if err != nil {
-			fmt.Println("error")
+			fmt.Println(err)
 		}
 	}
 
@@ -200,7 +200,7 @@ func main() {
 	args := os.Args[1:]
 	cleanup := true
 	//data point variables
-	clientIDs = []string{"client0", "client1", "client2"} //In order for test to work, couchbase must contain all 3 clients
+	clientIDs = []string{"client0", "client1"} //In order for test to work, couchbase must contain all 3 clients
 	eventIDs = []string{"physical check in", "mobile login", "rest"}
 	var err error
 	//connect to server
