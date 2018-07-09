@@ -181,7 +181,7 @@ func CleanupInflux(theTime int64) {
 	}
 	defer c.Close()
 
-	time.Sleep(2 * time.Second)
+	time.Sleep(4 * time.Second)
 	curTime := time.Now().UnixNano()
 
 	now := strconv.FormatInt(curTime, 10)
