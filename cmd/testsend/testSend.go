@@ -21,6 +21,7 @@ var (
 	clientIDs []string
 	eventIDs  []string
 	c         pb.EventAPIClient
+	stop      bool
 )
 
 //Northeast generates points for the northeast USA.
@@ -106,8 +107,10 @@ func Simulate() {
 			log.Println(err)
 			continue
 		}
-		//print server response
-		log.Println(resp.Response)
+		if resp != nil {
+			//print server response
+			log.Println(resp.Response)
+		}
 	}
 }
 
@@ -130,14 +133,16 @@ func Repeat() {
 		//get current time
 		dateTime := ptypes.TimestampNow()
 		//send data to server, returns response and error
-		_, err := c.DisplayData(context.Background(), &pb.DisplayRequest{
-			ClientId: clientID,
-			EventId:  eventID,
-			DateTime: dateTime,
-			DataSet:  locations[a],
-		})
-		if err != nil {
-			fmt.Println(err)
+		if !stop {
+			_, err := c.DisplayData(context.Background(), &pb.DisplayRequest{
+				ClientId: clientID,
+				EventId:  eventID,
+				DateTime: dateTime,
+				DataSet:  locations[a],
+			})
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 	}
 }
@@ -159,7 +164,9 @@ func LoadTest() {
 			continue
 		}
 		//print server response
-		log.Println(resp.Response)
+		if resp != nil {
+			log.Println(resp.Response)
+		}
 	}
 }
 
@@ -169,8 +176,8 @@ func CleanupInflux(theTime int64) {
 	// creates influx client
 	c, err := client.NewHTTPClient(client.HTTPConfig{
 		Addr:     "http://localhost:8086",
-		Username: "root",
-		Password: "root",
+		Username: "username",
+		Password: "password",
 	})
 	if err != nil {
 		panic(fmt.Errorf("error connecting to influx: %v", err))
@@ -204,16 +211,22 @@ func main() {
 		log.Fatal(err)
 	}
 
+	//var wg sync.WaitGroup
+	//wg.Add(1)
 	//listens for interrupt, gracefully cleans up
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
 	startTime := time.Now().UnixNano()
 	time.Sleep(500 * time.Millisecond)
+
 	go func() {
-		<-sigs
-		os.Exit(1)
-		CleanupInflux(startTime)
+		for {
+			<-sigs
+			stop = true
+			CleanupInflux(startTime)
+			os.Exit(0)
+		}
 	}()
 
 	if len(args) == 0 {
@@ -236,10 +249,45 @@ func main() {
 				cleanup = false
 			}
 		}
+		if cleanup {
+			CleanupInflux(startTime)
+		}
 	}
-	if cleanup {
-		CleanupInflux(startTime)
-	}
+	// go func() {
+	// 	for {
+	// 		select {
+	// 		case <-sigs:
+	// 			CleanupInflux(startTime)
+	// 			os.Exit(0)
+	// 		default:
+	// 			if len(args) == 0 {
+	// 				fmt.Println("usage: testsend.go -l [load test] -s [simulation test] -p [repeat point test] -d [no database cleanup]")
+	// 			} else {
+	// 				for a := 0; a < len(args); a++ {
+	// 					if args[a] == "-l" {
+	// 						fmt.Println("starting load test...")
+	// 						LoadTest()
+	// 					}
+	// 					if args[a] == "-s" {
+	// 						fmt.Println("starting simulation test...")
+	// 						Simulate()
+	// 					}
+	// 					if args[a] == "-p" {
+	// 						fmt.Println("starting repeat point test...")
+	// 						Repeat()
+	// 					}
+	// 					if args[a] == "-d" {
+	// 						cleanup = false
+	// 					}
+	// 				}
+	// 			}
+	// 			if cleanup {
+	// 				CleanupInflux(startTime)
+	// 			}
+	// 		}
+	// 	}
+	// }()
+	// wg.Wait()
 }
 
 //takes client data, sends it to over connection
@@ -251,16 +299,20 @@ func sendRequest(c pb.EventAPIClient, clientID, eventID string, lat, lng float64
 	//get current time
 	dateTime := ptypes.TimestampNow()
 	//send data to server, returns response and error
-	resp, err := c.DisplayData(context.Background(), &pb.DisplayRequest{
-		ClientId: clientID,
-		EventId:  eventID,
-		DateTime: dateTime,
-		DataSet:  dataSet,
-	})
-	if err != nil {
-		return nil, err
+
+	if !stop {
+		resp, err := c.DisplayData(context.Background(), &pb.DisplayRequest{
+			ClientId: clientID,
+			EventId:  eventID,
+			DateTime: dateTime,
+			DataSet:  dataSet,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp, nil
 	}
-	return resp, nil
+	return nil, nil
 }
 
 //get grpc connection client
