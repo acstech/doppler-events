@@ -1,3 +1,6 @@
+//This test file is for a fast, infinite load test that does not clean up influx data after itself.
+//The purpose of this file is speed
+
 package main
 
 import (

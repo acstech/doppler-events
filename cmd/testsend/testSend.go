@@ -127,21 +127,23 @@ func Repeat() {
 		dataSet["lng"] = strconv.FormatFloat(lng, 'g', -1, 64)
 		locations = append(locations, dataSet)
 	}
-	for y := 0; y < 1500; y++ {
+	for y := 0; y < 2500; y++ {
 		clientID := clientIDs[r.Int31n(int32(len(clientIDs)))] //pick random client from clientIDs slice
 		a := rand.Intn(200)
 		//get current time
 		dateTime := ptypes.TimestampNow()
 		//send data to server, returns response and error
 		if !stop {
-			_, err := c.DisplayData(context.Background(), &pb.DisplayRequest{
+			res, err := c.DisplayData(context.Background(), &pb.DisplayRequest{
 				ClientId: clientID,
 				EventId:  eventID,
 				DateTime: dateTime,
 				DataSet:  locations[a],
 			})
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
+			} else {
+				log.Println(res.Response)
 			}
 		}
 	}
@@ -190,7 +192,7 @@ func CleanupInflux(theTime int64) {
 	now := strconv.FormatInt(curTime, 10)
 	inTime := strconv.FormatInt(theTime, 10)
 
-	fmt.Printf("delete from dopplerDataHistory where time > %s and time < %s", inTime, now)
+	//fmt.Printf("delete from dopplerDataHistory where time > %s and time < %s", inTime, now)
 	q := client.NewQuery(fmt.Sprintf("delete from dopplerDataHistory where time > %s and time < %s", inTime, now), "doppler", "ns")
 
 	if _, err := c.Query(q); err != nil {
