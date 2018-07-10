@@ -1,16 +1,7 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-//This test file is for a fast, infinite load test that does not clean up influx data after itself.
-//The purpose of this file is speed
-
-=======
->>>>>>> changed
-=======
-//This test file is for a fast, infinite load test that does not clean up influx data after itself.
-//The purpose of this file is speed
-
->>>>>>> b1a7f4bbc454ed2a3595d1e4448f49841644cd6e
 package main
+
+//This test file is for a fast, infinite load test that does not clean up influx data after itself.
+//The purpose of this file is speed
 
 import (
 	"context"
