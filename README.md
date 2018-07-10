@@ -14,7 +14,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Installing
 
-Setting up the evironment
+Setting up the environment
 
 In directory of your choice, clone Doppler-Events (Backend API/Producer), Doppler-API (Frontend API/Consumer), and Doppler-Frontend (Frontend)
 
@@ -37,7 +37,7 @@ In doppler-events directory:
 
 Run `docker-compose up -d`
 
-Run `docker-compose ps` to make sure all services are up except doppler-api and doppler-events because couchbase has not yet been setup.
+Run `docker-compose ps` to make sure all services are up except doppler-api and doppler-events because Couchbase has not yet been setup.
 
 Example output:
 
@@ -70,11 +70,13 @@ Go to Buckets and Add Bucket (Top right)
 
 Create a bucket (save the bucket name you give it somewhere) and configure the memory to your liking. 256 MB is recommended.
 
-Create a user that only had read and write permissions on that same bucket using the security tab. (Located under Data Roles->Data Writer and Data Roles-> Data Reader)
+Create a user that only had read and write permissions on that same bucket using the security tab. (Located under Security->Add User->Data Roles->Data Writer and Data Roles-> Data Reader)
 
 Create a document and name it with the following format without brackets:
 
     [YourBucketName]:client:[YourClientName]
+
+YourClientName will be included as a data field with each message sent to the API, remember to keep it the same.  
 
 In the JSON for the document, add the client name and an empty Events array and save. Example:
 
@@ -83,32 +85,33 @@ In the JSON for the document, add the client name and an empty Events array and 
         "Events":[]
     }
 
-Make sure to run `docker-compose up -d` again becuase doppler-api and doppler-events crashed due to not being able to connect to couchbase.
-
-## Running the tests
-
-At this point, if you have had no error messages come, everything is standing up. Visit the location you served the front-end to (127.0.0.1:9080 by default) in your browser and enter in your clientID. Settings can be found by clicking the hamburger icon on the top left.
-
-Now lets try sending it some test data. Edit the doppler-events/cmd/testsend/testSend.go on line 29 and 30 add your client and eventIDs. Then run the testSend.go file: go run testSend.go. You can now go to your map and view the test data send.
+Make sure to run `docker-compose up -d` again because doppler-api and doppler-events crashed due to not being able to connect to Couchbase.
 
 ## Local Development and Testing
 
 Whenever a file changes inside of any of the three repos (doppler-api, doppler-events, doppler-frontend), the appropriate docker build command will need to be run.
-
+```
 In doppler-events run: docker build . -t acstintern/doppler-events:latest
 
 In doppler-api run: docker build . -t acstintern/doppler-api:latest
 
 In doppler-frontend run: docker build . -t acstintern/doppler-frontend:latest
-
+```
 And make sure that the docker-compose.yml file has either ':' or ':latest' after the doppler services, which correspond to the different repositories.
 
 Then run `docker-compose up -d` and proceed to checkout the new changes.
 
-To send data all the way through, at this point, run `go run cmd/testsend/testSend.go`.
-To run testSend.go with flags, use `-s` to simulate data for America only, `-p` to hit geographic locations multiple times, `-l` for infinite random latitude and longitude points. This test file has database cleanup for influx implemented after the test is finished.
+## Running the tests
+
+At this point, if you have had no error messages come, everything is standing up. Visit the location you served the front-end to (127.0.0.1:9080 by default) in your browser and enter in your clientID. Settings can be found by clicking the hamburger icon on the top left.
+
+Now lets try sending it some test data. Edit the doppler-events/cmd/loadtest/loadTest.go on line 27 add your clientIDs.
+Also edit line 206 in doppler-events/cmd/testsend/testSend.go.
 
 To load test the API, run `go run cmd/loadtest/loadTest.go`. This will not clean up your database.
+
+To run other tests, enter `go run cmd/testsend/testSend.go`.
+To run with flags, use `-s` to simulate data for America only, `-p` to hit geographic locations multiple times, `-l` for infinite random latitude and longitude points. This test file has database cleanup for influx implemented after the test is finished.
 
 ## Deployment
 

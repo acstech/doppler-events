@@ -143,5 +143,5 @@ services:
   frontend:
     image: acstintern/doppler-frontend:latest
     hostname: frontend
-    ports: 
+    ports:
     - "9080:80"
