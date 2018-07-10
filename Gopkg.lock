@@ -62,6 +62,16 @@
   version = "0.2"
 
 [[projects]]
+  name = "github.com/influxdata/influxdb"
+  packages = [
+    "client/v2",
+    "models",
+    "pkg/escape"
+  ]
+  revision = "62ab18a0f43ee342b84debaaae5486b8b2d8682c"
+  version = "v1.6.0"
+
+[[projects]]
   name = "github.com/joho/godotenv"
   packages = [
     ".",
@@ -187,6 +197,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2c536b49879b11dae6bfb9ad718566241d0dcbd1d60904edc701f31679bd3e72"
+  inputs-digest = "0a8b118f9ab14829fa8ceb954e7d3bab48af018711daa859fe978d9dd3561488"
   solver-name = "gps-cdcl"
   solver-version = 1

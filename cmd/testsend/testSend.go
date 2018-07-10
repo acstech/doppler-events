@@ -13,7 +13,7 @@ import (
 
 	pb "github.com/acstech/doppler-events/rpc/eventAPI" //c meaning client call
 	"github.com/golang/protobuf/ptypes"
-	"github.com/influxdata/influxdb/client/v2"
+	client "github.com/influxdata/influxdb/client/v2"
 	"google.golang.org/grpc"
 )
 
@@ -21,6 +21,7 @@ var (
 	clientIDs []string
 	eventIDs  []string
 	c         pb.EventAPIClient
+	stop      bool
 )
 
 //Northeast generates points for the northeast USA.
@@ -106,44 +107,46 @@ func Simulate() {
 			log.Println(err)
 			continue
 		}
-		//print server response
-		log.Println(resp.Response)
+		if resp != nil {
+			//print server response
+			log.Println(resp.Response)
+		}
 	}
 }
 
 //Repeat creates a set number of point locations then iterates through them, rehitting an area multiple times
 func Repeat() {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-
-	clientID := clientIDs[r.Int31n(int32(len(clientIDs)))] //pick random client from clientIDs slice
-	eventID := eventIDs[r.Int31n(int32(len(eventIDs)))]    //pick random event from eventIDs slice
+	eventID := eventIDs[r.Int31n(int32(len(eventIDs)))] //pick random event from eventIDs slice
 	var locations []map[string]string
 	for x := 0; x < 200; x++ {
 		lat := (r.Float64() - .5) * 180 //get random lat
 		lng := (r.Float64() - .5) * 360 //get random lng
-
 		dataSet := make(map[string]string, 2)
 		dataSet["lat"] = strconv.FormatFloat(lat, 'g', -1, 64)
 		dataSet["lng"] = strconv.FormatFloat(lng, 'g', -1, 64)
 		locations = append(locations, dataSet)
 	}
-	for y := 0; y < 1500; y++ {
+	for y := 0; y < 2500; y++ {
+		clientID := clientIDs[r.Int31n(int32(len(clientIDs)))] //pick random client from clientIDs slice
 		a := rand.Intn(200)
-
 		//get current time
 		dateTime := ptypes.TimestampNow()
 		//send data to server, returns response and error
-		_, err := c.DisplayData(context.Background(), &pb.DisplayRequest{
-			ClientId: clientID,
-			EventId:  eventID,
-			DateTime: dateTime,
-			DataSet:  locations[a],
-		})
-		if err != nil {
-			fmt.Println(err)
+		if !stop {
+			res, err := c.DisplayData(context.Background(), &pb.DisplayRequest{
+				ClientId: clientID,
+				EventId:  eventID,
+				DateTime: dateTime,
+				DataSet:  locations[a],
+			})
+			if err != nil {
+				log.Println(err)
+			} else {
+				log.Println(res.Response)
+			}
 		}
 	}
-
 }
 
 //LoadTest sends infinite random points to the API
@@ -163,7 +166,9 @@ func LoadTest() {
 			continue
 		}
 		//print server response
-		log.Println(resp.Response)
+		if resp != nil {
+			log.Println(resp.Response)
+		}
 	}
 }
 
@@ -181,22 +186,20 @@ func CleanupInflux(theTime int64) {
 	}
 	defer c.Close()
 
-	time.Sleep(4 * time.Second)
+	time.Sleep(2 * time.Second)
 	curTime := time.Now().UnixNano()
 
 	now := strconv.FormatInt(curTime, 10)
 	inTime := strconv.FormatInt(theTime, 10)
 
-	fmt.Printf("delete from dopplerDataHistory where time > %s and time < %s", inTime, now)
+	//fmt.Printf("delete from dopplerDataHistory where time > %s and time < %s", inTime, now)
 	q := client.NewQuery(fmt.Sprintf("delete from dopplerDataHistory where time > %s and time < %s", inTime, now), "doppler", "ns")
 
 	if _, err := c.Query(q); err != nil {
 		fmt.Println(err)
 	}
 }
-
 func main() {
-
 	args := os.Args[1:]
 	cleanup := true
 	//data point variables
@@ -208,17 +211,20 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	//listens for interrupt, gracefully cleans up
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
 	startTime := time.Now().UnixNano()
 	time.Sleep(500 * time.Millisecond)
+
 	go func() {
-		<-sigs
-		CleanupInflux(startTime)
-		os.Exit(1)
+		for {
+			<-sigs
+			stop = true
+			CleanupInflux(startTime)
+			os.Exit(0)
+		}
 	}()
 
 	if len(args) == 0 {
@@ -241,9 +247,9 @@ func main() {
 				cleanup = false
 			}
 		}
-	}
-	if cleanup {
-		CleanupInflux(startTime)
+		if cleanup {
+			CleanupInflux(startTime)
+		}
 	}
 }
 
@@ -256,16 +262,20 @@ func sendRequest(c pb.EventAPIClient, clientID, eventID string, lat, lng float64
 	//get current time
 	dateTime := ptypes.TimestampNow()
 	//send data to server, returns response and error
-	resp, err := c.DisplayData(context.Background(), &pb.DisplayRequest{
-		ClientId: clientID,
-		EventId:  eventID,
-		DateTime: dateTime,
-		DataSet:  dataSet,
-	})
-	if err != nil {
-		return nil, err
+
+	if !stop {
+		resp, err := c.DisplayData(context.Background(), &pb.DisplayRequest{
+			ClientId: clientID,
+			EventId:  eventID,
+			DateTime: dateTime,
+			DataSet:  dataSet,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp, nil
 	}
-	return resp, nil
+	return nil, nil
 }
 
 //get grpc connection client
