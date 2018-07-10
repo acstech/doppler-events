@@ -253,41 +253,6 @@ func main() {
 			CleanupInflux(startTime)
 		}
 	}
-	// go func() {
-	// 	for {
-	// 		select {
-	// 		case <-sigs:
-	// 			CleanupInflux(startTime)
-	// 			os.Exit(0)
-	// 		default:
-	// 			if len(args) == 0 {
-	// 				fmt.Println("usage: testsend.go -l [load test] -s [simulation test] -p [repeat point test] -d [no database cleanup]")
-	// 			} else {
-	// 				for a := 0; a < len(args); a++ {
-	// 					if args[a] == "-l" {
-	// 						fmt.Println("starting load test...")
-	// 						LoadTest()
-	// 					}
-	// 					if args[a] == "-s" {
-	// 						fmt.Println("starting simulation test...")
-	// 						Simulate()
-	// 					}
-	// 					if args[a] == "-p" {
-	// 						fmt.Println("starting repeat point test...")
-	// 						Repeat()
-	// 					}
-	// 					if args[a] == "-d" {
-	// 						cleanup = false
-	// 					}
-	// 				}
-	// 			}
-	// 			if cleanup {
-	// 				CleanupInflux(startTime)
-	// 			}
-	// 		}
-	// 	}
-	// }()
-	// wg.Wait()
 }
 
 //takes client data, sends it to over connection
