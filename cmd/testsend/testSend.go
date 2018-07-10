@@ -117,8 +117,7 @@ func Simulate() {
 //Repeat creates a set number of point locations then iterates through them, rehitting an area multiple times
 func Repeat() {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	clientID := clientIDs[r.Int31n(int32(len(clientIDs)))] //pick random client from clientIDs slice
-	eventID := eventIDs[r.Int31n(int32(len(eventIDs)))]    //pick random event from eventIDs slice
+	eventID := eventIDs[r.Int31n(int32(len(eventIDs)))] //pick random event from eventIDs slice
 	var locations []map[string]string
 	for x := 0; x < 200; x++ {
 		lat := (r.Float64() - .5) * 180 //get random lat
@@ -129,6 +128,7 @@ func Repeat() {
 		locations = append(locations, dataSet)
 	}
 	for y := 0; y < 1500; y++ {
+		clientID := clientIDs[r.Int31n(int32(len(clientIDs)))] //pick random client from clientIDs slice
 		a := rand.Intn(200)
 		//get current time
 		dateTime := ptypes.TimestampNow()
@@ -209,9 +209,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	//var wg sync.WaitGroup
-	//wg.Add(1)
 	//listens for interrupt, gracefully cleans up
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
