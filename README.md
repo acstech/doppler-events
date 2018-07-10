@@ -146,7 +146,6 @@ Version 1.0.0
 * [Pranav Minasandram](https://github.com/PranavMin)
 * [Peter Kaufman](https://github.com/pjkaufman)
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
 ## License
 
