@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+
 	"github.com/Shopify/sarama"
 )
 
@@ -9,7 +10,7 @@ import (
 func (prod *Service) sendToQueue(JSONob []byte) {
 	// create message to be sent to kafka
 	msg := &sarama.ProducerMessage{
-		Topic: "influx-topic",
+		Topic: prod.kafkaTopic,
 		Value: sarama.ByteEncoder(JSONob),
 		//Partition: 1, //partNum,
 	}
