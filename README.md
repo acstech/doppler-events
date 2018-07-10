@@ -106,6 +106,9 @@ And make sure that the docker-compose.yml file has either ':' or ':latest' after
 Then run `docker-compose up -d` and proceed to checkout the new changes.
 
 To send data all the way through, at this point, run `go run cmd/testsend/testSend.go`.
+To run testSend.go with flags, use `-s` to simulate data for America only, `-p` to hit geographic locations multiple times, `-l` for infinite random latitude and longitude points. This test file has database cleanup for influx implemented after the test is finished.
+
+To load test the API, run `go run cmd/loadtest/loadTest.go`. This will not clean up your database.
 
 ## Deployment
 
