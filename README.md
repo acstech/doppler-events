@@ -138,12 +138,13 @@ Version 1.0.0
 
 ## Authors
 
-* ***Matt Harrington***
-* ***Peter Kaufmann***
-* ***Pranav Minasandram*** - gRPC and Frontend
-* ***Matt Smith***
-* ***Leander Stevano***
-* ***Ben Wornom***
+
+* [Ben Wornom](https://github.com/bwornom7)
+* [Leander Stevano](https://github.com/deepmicrobe)
+* [Matt Smith](https://github.com/mattsmith803)
+* [Matt Harrington](https://github.com/Matt2Harrington)
+* [Pranav Minasandram](https://github.com/PranavMin)
+* [Peter Kaufman](https://github.com/pjkaufman)
 
 See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
