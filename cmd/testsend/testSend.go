@@ -204,7 +204,7 @@ func main() {
 	cleanup := true
 	//data point variables
 	clientIDs = []string{"client1"} //In order for test to work, couchbase must contain all 3 clients
-	eventIDs = []string{"physical check in", "mobile login", "rest"}
+	eventIDs = []string{"physical check in", "mobile login", "retry"}
 	var err error
 	//connect to server
 	c, err = dial("localhost:8080")
