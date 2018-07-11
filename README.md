@@ -54,12 +54,11 @@ doppler-events_doppler-api_1       ./entrypoint.sh                  Up      0.0.
 
 Map "Kafka" to localhost in your host file
 
-    Mac: Open /private/etc/hosts in a text editor and add 'kafka' (no quotes) after
-    127.0.0.1	localhost
-
-	Linux: TODO
-
-    Windows: TODO
+    For Mac:
+    * Change directories to /private/etc/
+    * Open the 'hosts' file in a text editor (use sudo)
+    * Edit the file and add 'kafka' (no quotes) after
+                                127.0.0.1	localhost
 
 **Couchbase Setup**
 
@@ -90,7 +89,7 @@ In the JSON for the document, add the client name and an empty Events array and 
 
 Make sure to run `docker-compose up -d` again because doppler-api and doppler-events crashed due to not being able to connect to Couchbase.
 
-## Local Development and Testing
+## Local Testing
 
 Whenever a file changes inside of any of the three repos (doppler-api, doppler-events, doppler-frontend), the appropriate docker build command will need to be run.
 
@@ -116,9 +115,9 @@ To load test the API, run `go run cmd/loadtest/loadTest.go`. This will not clean
 To run other tests, enter `go run cmd/testsend/testSend.go`.
 To run with flags, use `-s` to simulate data for America only, `-p` to hit geographic locations multiple times, `-l` for infinite random latitude and longitude points. This test file has database cleanup for influx implemented after the test is finished.
 
-## Deployment
+## Development
 
-Coming soon
+[Click here](https://github.com/acstech/doppler-events/wiki/Development)
 
 ## Built With
 
