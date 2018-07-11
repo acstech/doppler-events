@@ -1,5 +1,5 @@
 # Doppler Heatmap
-This project provides and API for developers to be able to send events along with a coordinate point and have it plot live on a heatmap hosted in the browser. Written in Go and uses gRPC, Kafka, Couchbase, InfluxDB, Leaflet Maps, and Heatmap.js.
+This project provides an API for developers to track live geographical data. The process starts by 1) a client sending formatted events to an API which 2) serves the event data onto a messaging queue 3) which is read off by another API, 4) then served up live on a heatmap hosted in the browser. The backend layer is written in Go. Other components used include gRPC, Kafka, Couchbase, InfluxDB, Leaflet Maps, and Heatmap.js.
 
 ## Getting Started
 
@@ -7,9 +7,12 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-
-* [go](https://golang.org/doc/install) (written for go1.10.3)
+* [go](https://golang.org/doc/install) (written for go 1.10.3)
 * [Docker-compose](https://docs.docker.com/compose/install/#install-compose)
+
+ Be sure to clone and stand up the following repositories
+*  [doppler-api](https://github.com/acstech/doppler-api)
+*  [doppler-frontend](https://github.com/acstech/doppler-frontend)
 
 
 ### Installing
@@ -90,13 +93,13 @@ Make sure to run `docker-compose up -d` again because doppler-api and doppler-ev
 ## Local Development and Testing
 
 Whenever a file changes inside of any of the three repos (doppler-api, doppler-events, doppler-frontend), the appropriate docker build command will need to be run.
-```
-In doppler-events run: docker build . -t acstintern/doppler-events:latest
 
-In doppler-api run: docker build . -t acstintern/doppler-api:latest
+In doppler-events run: `docker build . -t acstintern/doppler-events:latest`
 
-In doppler-frontend run: docker build . -t acstintern/doppler-frontend:latest
-```
+In doppler-api run: `docker build . -t acstintern/doppler-api:latest`
+
+In doppler-frontend run: `docker build . -t acstintern/doppler-frontend:latest`
+
 And make sure that the docker-compose.yml file has either ':' or ':latest' after the doppler services, which correspond to the different repositories.
 
 Then run `docker-compose up -d` and proceed to checkout the new changes.
