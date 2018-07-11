@@ -203,8 +203,8 @@ func main() {
 	args := os.Args[1:]
 	cleanup := true
 	//data point variables
-	clientIDs = []string{"client1", "client2"} //In order for test to work, couchbase must contain all 3 clients
-	eventIDs = []string{"physical check in", "mobile login", "retry", "lebron"}
+	clientIDs = []string{"client1"} //In order for test to work, couchbase must contain all 3 clients
+	eventIDs = []string{"physical check in", "mobile login", "rest"}
 	var err error
 	//connect to server
 	c, err = dial("localhost:8080")
