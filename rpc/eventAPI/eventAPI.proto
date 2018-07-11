@@ -19,11 +19,12 @@ service EventAPI {
 message DisplayRequest {
   // unique ID for client
   string client_id = 1;
-  // to specify what type of event they are sending
+  // to specify what type of event they are sending; no more than 35 characters
   string event_id = 2;
   // time value (Unix time)
   google.protobuf.Timestamp date_time = 3;
-  // all data and any other sort of tags
+  // all data and any other sort of tags. "lat" and "lng" keys must be given
+  // longitude and latitude values as strings. 
   map<string, string> data_set = 4;
 }
 
