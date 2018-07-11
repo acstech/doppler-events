@@ -1,5 +1,5 @@
 # Doppler Heatmap
-This project provides and API for developers to be able to send events along with a coordinate point and have it plot live on a heatmap hosted in the browser. Written in Go and uses gRPC, Kafka, Couchbase, InfluxDB, Leaflet Maps, and Heatmap.js.
+This project provides an API for developers to track live geographical data. The process starts by 1) a client sending formatted events to an API which 2) serves the event data onto a messaging queue 3) which is read off by another API, 4) then served up live on a heatmap hosted in the browser. The backend layer is written in Go. Other components used include gRPC, Kafka, Couchbase, InfluxDB, Leaflet Maps, and Heatmap.js.
 
 ## Getting Started
 
@@ -8,7 +8,7 @@ These instructions will get you a copy of the project up and running on your loc
 ### Prerequisites
 
 
-* [go](https://golang.org/doc/install) (written for go1.10.3)
+* [go](https://golang.org/doc/install) (written for go 1.10.3)
 * [Docker-compose](https://docs.docker.com/compose/install/#install-compose)
 
 
