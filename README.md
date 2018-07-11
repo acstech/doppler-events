@@ -7,9 +7,12 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-
 * [go](https://golang.org/doc/install) (written for go 1.10.3)
 * [Docker-compose](https://docs.docker.com/compose/install/#install-compose)
+
+ Be sure to clone and stand up the following repositories
+*  [doppler-api](https://github.com/acstech/doppler-api)
+*  [doppler-frontend](https://github.com/acstech/doppler-frontend)
 
 
 ### Installing
