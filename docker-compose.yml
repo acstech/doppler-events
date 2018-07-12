@@ -119,7 +119,7 @@ services:
       CONNECTOR_CONNECT_INFLUX_RETENTION_POLICY: "sixMonths"
 
   doppler-events:
-    image: acstintern/doppler-events:latest
+    image: acstintern/doppler-events:v1.0.1
     hostname: doppler_events
     depends_on:
       - kafka
@@ -130,7 +130,7 @@ services:
       - doppler-base.env
 
   doppler-api:
-    image: acstintern/doppler-api:latest
+    image: acstintern/doppler-api:v1.0.1
     hostname: doppler_api
     depends_on:
       - kafka
@@ -141,7 +141,7 @@ services:
       - doppler-base.env
 
   frontend:
-    image: acstintern/doppler-frontend:latest
+    image: acstintern/doppler-frontend:v1.0.1
     hostname: frontend
     ports:
     - "9080:80"
