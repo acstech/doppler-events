@@ -114,6 +114,43 @@ func Simulate() {
 	}
 }
 
+//History generates data points with timestamps from the past 24 hours, this is intended to simply create test data for playback functionality
+func History() {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	clientID := clientIDs[r.Int31n(int32(len(clientIDs)))]
+	count := -24
+	for count != 0 {
+		theTime := time.Now().Add(time.Duration(count) * time.Hour)
+		x := 50
+		for x != 0 {
+			theTime = theTime.Add(time.Duration(x) * time.Minute)
+			dateTime, _ := ptypes.TimestampProto(theTime)
+			dataSet := make(map[string]string, 2)
+			x--
+			lat := (r.Float64() - .5) * 180 //get random lat
+			lng := (r.Float64() - .5) * 360 //get random lng
+			dataSet["lat"] = strconv.FormatFloat(lat, 'g', -1, 64)
+			dataSet["lng"] = strconv.FormatFloat(lng, 'g', -1, 64)
+			eventID := eventIDs[r.Int31n(int32(len(eventIDs)))]
+
+			if !stop {
+				res, err := c.DisplayData(context.Background(), &pb.DisplayRequest{
+					ClientId: clientID,
+					EventId:  eventID,
+					DateTime: dateTime,
+					DataSet:  dataSet,
+				})
+				if err != nil {
+					log.Println(err)
+				} else {
+					log.Println(res.Response)
+				}
+			}
+		}
+		count++
+	}
+}
+
 //Repeat creates a set number of point locations then iterates through them, rehitting an area multiple times
 func Repeat() {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -199,6 +236,7 @@ func CleanupInflux(theTime int64) {
 		fmt.Println(err)
 	}
 }
+
 func main() {
 	args := os.Args[1:]
 	cleanup := true
@@ -242,6 +280,10 @@ func main() {
 			if args[a] == "-p" {
 				fmt.Println("starting repeat point test...")
 				Repeat()
+			}
+			if args[a] == "-h" {
+				fmt.Println("starting historical data test...")
+				History()
 			}
 			if args[a] == "-d" {
 				cleanup = false
