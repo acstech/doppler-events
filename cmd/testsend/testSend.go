@@ -119,11 +119,11 @@ func History() {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	clientID := "client1"
 	eventID := "historyTestLogin"
-	count := -24
-	for count != 0 {
+	count := -7
+	for count < -1 {
 		theTime := time.Now().Add(time.Duration(count) * time.Hour)
-		x := 50
-		for x != 0 {
+		x := 15
+		for x > 1 {
 			theTime = theTime.Add(time.Duration(x) * time.Minute)
 			dateTime, _ := ptypes.TimestampProto(theTime)
 			dataSet := make(map[string]string, 2)
@@ -143,7 +143,8 @@ func History() {
 				if err != nil {
 					log.Println(err)
 				} else {
-					log.Println(res.Response)
+					res = res
+					//log.Println(res.Response)
 				}
 			}
 		}
@@ -242,7 +243,7 @@ func main() {
 	cleanup := true
 	//data point variables
 	clientIDs = []string{"client1"} //In order for test to work, couchbase must contain all 3 clients
-	eventIDs = []string{"physical check in", "mobile login", "rest"}
+	eventIDs = []string{"physical check in", "mobile login", "newfilter"}
 	var err error
 	//connect to server
 	c, err = dial("localhost:8080")
@@ -283,7 +284,9 @@ func main() {
 			}
 			if args[a] == "-h" {
 				fmt.Println("starting historical data test...")
-				History()
+				for x := 0; x < 2148; x++ {
+					History()
+				}
 			}
 			if args[a] == "-d" {
 				cleanup = false
