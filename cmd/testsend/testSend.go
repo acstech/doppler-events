@@ -117,6 +117,7 @@ func Simulate() {
 //History generates data points with timestamps from the past 24 hours, this is intended to simply create test data for playback functionality
 func History() {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
 	clientID := "client1"
 	eventID := "historyTestLogin"
 	count := -7
@@ -132,7 +133,6 @@ func History() {
 			lng := (r.Float64() - .5) * 360 //get random lng
 			dataSet["lat"] = strconv.FormatFloat(lat, 'g', -1, 64)
 			dataSet["lng"] = strconv.FormatFloat(lng, 'g', -1, 64)
-
 			if !stop {
 				res, err := c.DisplayData(context.Background(), &pb.DisplayRequest{
 					ClientId: clientID,
@@ -143,8 +143,7 @@ func History() {
 				if err != nil {
 					log.Println(err)
 				} else {
-					res = res
-					//log.Println(res.Response)
+					log.Println(res.Response)
 				}
 			}
 		}
