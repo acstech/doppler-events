@@ -37,7 +37,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
 	// Create asynchronous Kafka producer
 	producer, err := newProducer(kafkaConn)
 	if err != nil {

@@ -117,12 +117,14 @@ func Simulate() {
 //History generates data points with timestamps from the past 24 hours, this is intended to simply create test data for playback functionality
 func History() {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	clientID := clientIDs[r.Int31n(int32(len(clientIDs)))]
-	count := -24
-	for count != 0 {
+
+	clientID := "client1"
+	eventID := "historyTestLogin"
+	count := -7
+	for count < -1 {
 		theTime := time.Now().Add(time.Duration(count) * time.Hour)
-		x := 50
-		for x != 0 {
+		x := 15
+		for x > 1 {
 			theTime = theTime.Add(time.Duration(x) * time.Minute)
 			dateTime, _ := ptypes.TimestampProto(theTime)
 			dataSet := make(map[string]string, 2)
@@ -131,8 +133,6 @@ func History() {
 			lng := (r.Float64() - .5) * 360 //get random lng
 			dataSet["lat"] = strconv.FormatFloat(lat, 'g', -1, 64)
 			dataSet["lng"] = strconv.FormatFloat(lng, 'g', -1, 64)
-			eventID := eventIDs[r.Int31n(int32(len(eventIDs)))]
-
 			if !stop {
 				res, err := c.DisplayData(context.Background(), &pb.DisplayRequest{
 					ClientId: clientID,
@@ -242,7 +242,7 @@ func main() {
 	cleanup := true
 	//data point variables
 	clientIDs = []string{"client1"} //In order for test to work, couchbase must contain all 3 clients
-	eventIDs = []string{"physical check in", "mobile login", "rest"}
+	eventIDs = []string{"physical check in", "mobile login", "newfilter"}
 	var err error
 	//connect to server
 	c, err = dial("localhost:8080")
@@ -283,7 +283,9 @@ func main() {
 			}
 			if args[a] == "-h" {
 				fmt.Println("starting historical data test...")
-				History()
+				for x := 0; x < 2148; x++ {
+					History()
+				}
 			}
 			if args[a] == "-d" {
 				cleanup = false
