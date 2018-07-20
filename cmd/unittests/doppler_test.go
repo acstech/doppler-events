@@ -1,47 +1,24 @@
 package doppler_test
 
 import (
-	"fmt"
-	"os"
 	"testing"
-
-	"github.com/Shopify/sarama"
-	cb "github.com/acstech/doppler-events/internal/couchbase"
-	"github.com/joho/godotenv"
 )
 
 var (
-	bucket      string
-	clientID    string
-	badclientID string
-	eventID     string
-	dataName1   string
-	dataName2   string
-	dataSet     map[string]string
-	cbconfig    string
-	badcbconfig string
-	producer    sarama.AsyncProducer
+// bucket      string
+// clientID    string
+// badclientID string
+// eventID     string
+// dataName1   string
+// dataName2   string
+// dataSet     map[string]string
+// cbconfig    string
+// badcbconfig string
 )
 
 func init() {
 	//TODO check if development mode or not?????
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Error loading .env file")
-		panic(err)
-	}
-	//get config variables
-	cbConn := os.Getenv("COUCHBASE_CONN")
-	testCB := &cb.Couchbase{Doc: &cb.Doc{}}
-	err = testCB.ConnectToCB(cbConn)
-	if err != nil {
-		//TODO try to manually create CB document, format, recheck error
 
-	}
-
-	config := sarama.NewConfig()
-	brokers := []string{"localhost:9092"}
-	producer, err = sarama.NewAsyncProducer(brokers, config)
 }
 
 //TODO: Test the following
