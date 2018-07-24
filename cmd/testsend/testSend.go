@@ -242,7 +242,8 @@ func main() {
 	cleanup := true
 	//data point variables
 	clientIDs = []string{"client1"} //In order for test to work, couchbase must contain all 3 clients
-	eventIDs = []string{"physical check in", "mobile login", "newfilter"}
+	eventIDs = []string{"physical check in", "mobile login", "newfilter", "Chris Radar's Radar", "bible study july 14 monday 2018 southern charlotte", "potluckthejulyu14th",
+		"chick fil a", "lonzo ball", "redirect to home page", "1337 h4xx0r"}
 	var err error
 	//connect to server
 	c, err = dial("localhost:8080")
@@ -275,7 +276,9 @@ func main() {
 			}
 			if args[a] == "-s" {
 				fmt.Println("starting simulation test...")
-				Simulate()
+				for x := 0; x < 123; x++ {
+					Simulate()
+				}
 			}
 			if args[a] == "-p" {
 				fmt.Println("starting repeat point test...")
