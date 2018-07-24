@@ -28,7 +28,7 @@ var (
 func Northeast() (float64, float64) {
 	lat := 35 + rand.Float64()*(44-35)
 	lng := 74 + rand.Float64()*(83-74)
-	lng = lng - lng - lng
+	lng = lng * -1
 	return lat, lng
 }
 
@@ -36,7 +36,7 @@ func Northeast() (float64, float64) {
 func Southeast() (float64, float64) {
 	lat := 31 + rand.Float64()*(35-31)
 	lng := 79 + rand.Float64()*(87-79)
-	lng = lng - lng - lng
+	lng = lng * -1
 	return lat, lng
 }
 
@@ -44,7 +44,7 @@ func Southeast() (float64, float64) {
 func Midwest() (float64, float64) {
 	lat := 29 + rand.Float64()*(48-29)
 	lng := 90 + rand.Float64()*(108-90)
-	lng = lng - lng - lng
+	lng = lng * -1
 	return lat, lng
 }
 
@@ -52,7 +52,7 @@ func Midwest() (float64, float64) {
 func West() (float64, float64) {
 	lat := 33 + rand.Float64()*(48-33)
 	lng := 108 + rand.Float64()*(121-108)
-	lng = lng - lng - lng
+	lng = lng * -1
 	return lat, lng
 }
 
@@ -60,7 +60,7 @@ func West() (float64, float64) {
 func Random() (float64, float64) {
 	lat := 26 + rand.Float64()*(48-26)
 	lng := 80 + rand.Float64()*(118-80)
-	lng = lng - lng - lng
+	lng = lng * -1
 	return lat, lng
 }
 
@@ -242,7 +242,8 @@ func main() {
 	cleanup := true
 	//data point variables
 	clientIDs = []string{"client1"} //In order for test to work, couchbase must contain all 3 clients
-	eventIDs = []string{"physical check in", "mobile login", "newfilter"}
+	eventIDs = []string{"physical check in", "mobile login", "newfilter", "Chris Radar's Radar", "bible study july 14 monday 2018 southern charlotte", "potluckthejulyu14th",
+		"chick fil a", "lonzo ball", "redirect to home page", "1337 h4xx0r"}
 	var err error
 	//connect to server
 	c, err = dial("localhost:8080")
@@ -275,7 +276,9 @@ func main() {
 			}
 			if args[a] == "-s" {
 				fmt.Println("starting simulation test...")
-				Simulate()
+				for x := 0; x < 123; x++ {
+					Simulate()
+				}
 			}
 			if args[a] == "-p" {
 				fmt.Println("starting repeat point test...")

@@ -53,7 +53,7 @@ func (c *Couchbase) collectEvents(clientID string) (*Doc, error) {
 		return nil, err
 	}
 	// get the Events array into a slice
-	docFrag.Content("Events", &document.Events)
+	err = docFrag.Content("Events", &document.Events)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,8 @@ func (c *Couchbase) collectEvents(clientID string) (*Doc, error) {
 // clientID is the client's ID.
 // eventID is the client's event ID.
 func (c *Couchbase) EventEnsure(clientID, eventID string, document *Doc) error {
-	sort.Sort(sort.StringSlice(document.Events))
+	//sort.Sort(sort.StringSlice(document.Events))
+	sort.Strings(document.Events)
 	// determine if the eventID is already in couchbase, if it is not then add it
 	if binarySearch(document.Events, eventID) == -1 {
 		_, err := c.Bucket.MutateIn(fmt.Sprintf("%s:client:%s", c.bucketName, clientID), 0, 0).ArrayAddUnique("Events", eventID, false).Execute()
@@ -79,7 +80,7 @@ func (c *Couchbase) EventEnsure(clientID, eventID string, document *Doc) error {
 
 // ConnectToCB connects to couchbase and sets up the client's bucket.
 // conn is a connection string which be of the form couchbase://username:password@localhost/bucket_name.
-// returns an error which will be nil if no error has occured.
+// returns an error which will be nil if no error has occurred.
 func (c *Couchbase) ConnectToCB(conn string) error {
 	// parse the connection string into a url for later use
 	u, err := url.Parse(conn)
@@ -108,7 +109,10 @@ func (c *Couchbase) ConnectToCB(conn string) error {
 		return err
 	}
 	// authenticate the user and connect to the specified bucket
-	cluster.Authenticate(&gocb.PasswordAuthenticator{Username: username, Password: password})
+	err = cluster.Authenticate(&gocb.PasswordAuthenticator{Username: username, Password: password})
+	if err != nil {
+		return err
+	}
 	c.Bucket, err = cluster.OpenBucket(c.bucketName, "")
 	if err != nil {
 		return err

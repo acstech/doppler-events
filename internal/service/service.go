@@ -17,7 +17,6 @@ type Service struct {
 
 // Error struct for verifying constraints
 type ErrorRes struct {
-	err    error
 	errMes []string
 }
 
