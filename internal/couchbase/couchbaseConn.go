@@ -80,7 +80,7 @@ func (c *Couchbase) EventEnsure(clientID, eventID string, document *Doc) error {
 
 // ConnectToCB connects to couchbase and sets up the client's bucket.
 // conn is a connection string which be of the form couchbase://username:password@localhost/bucket_name.
-// returns an error which will be nil if no error has occured.
+// returns an error which will be nil if no error has occurred.
 func (c *Couchbase) ConnectToCB(conn string) error {
 	// parse the connection string into a url for later use
 	u, err := url.Parse(conn)

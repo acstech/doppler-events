@@ -3,14 +3,15 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
+	"time"
+
 	pb "github.com/acstech/doppler-events/rpc/eventAPI"
 	"github.com/couchbase/gocb"
 	ptype "github.com/golang/protobuf/ptypes"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"strconv"
-	"time"
 )
 
 // DisplayData is the function that EventAPIClient.go calls in order to send data to the server
@@ -25,7 +26,7 @@ func (s *Service) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.D
 		}
 		return nil, status.Error(codes.InvalidArgument, "401: Invalid input: "+errorMSG[:len(errorMSG)-2])
 	}
-	//converting protobuf timestap to to a string in format yyyy-MM-DDTHH:mm:ss.SSSZ
+	//converting protobuf timestamp to to a string in format yyyy-MM-DDTHH:mm:ss.SSSZ
 	ts := ptype.TimestampString(in.DateTime)
 	//make sure that the timestamp is before now
 	now, err := ptype.TimestampProto(time.Now())
@@ -75,7 +76,7 @@ func (s *Service) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.D
 		if key == "lat" {
 			val, err := strconv.ParseFloat(value, 64)
 			if err != nil {
-				return nil, status.Error(codes.InvalidArgument, "401: Invalid input: lattitude type error")
+				return nil, status.Error(codes.InvalidArgument, "401: Invalid input: latitude type error")
 			}
 			if val > 85.0 {
 				value = "85.0"
@@ -85,7 +86,7 @@ func (s *Service) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.D
 		} else if key == "lng" {
 			val, err := strconv.ParseFloat(value, 64)
 			if err != nil {
-				return nil, status.Error(codes.InvalidArgument, "401: Invalid input: lattitude type error")
+				return nil, status.Error(codes.InvalidArgument, "401: Invalid input: latitude type error")
 			}
 			if val > 175.0 {
 				value = "175.0"

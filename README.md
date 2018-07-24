@@ -1,4 +1,4 @@
-# Doppler Heatmap
+# Doppler Heatmap [![Go Report Card](https://goreportcard.com/badge/github.com/acstech/doppler-events)](https://goreportcard.com/report/github.com/acstech/doppler-events)
 This project provides an API for developers to track live geographical data. The process starts by 1) a client sending formatted events to an API which 2) serves the event data onto a messaging queue 3) which is read off by another API, 4) then served up live on a heatmap hosted in the browser. The backend layer is written in Go. Other components used include gRPC, Kafka, Couchbase, InfluxDB, Leaflet Maps, and Heatmap.js.
 
 ## Getting Started
