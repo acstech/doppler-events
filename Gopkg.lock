@@ -2,123 +2,164 @@
 
 
 [[projects]]
+  digest = "1:66b8ed452b31eb9075bc53295952487c333a9cb555de57ed61f5664c058d9050"
   name = "github.com/Shopify/sarama"
   packages = ["."]
+  pruneopts = "UT"
   revision = "35324cf48e33d8260e1c7c18854465a904ade249"
   version = "v1.17.0"
 
 [[projects]]
+  digest = "1:7de4e571acfcb92fcc650d21ef48f4b7a36342c871de3b631d6a3b86f3fe009e"
   name = "github.com/couchbase/gocb"
   packages = ["."]
+  pruneopts = "UT"
   revision = "40eafe80a794c46d9aa8111c5ab6a3ee9810b5f5"
   version = "v1.3.6"
 
 [[projects]]
+  digest = "1:a2c1d0e43bd3baaa071d1b9ed72c27d78169b2b269f71c105ac4ba34b1be4a39"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
+  pruneopts = "UT"
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
   version = "v1.1.0"
 
 [[projects]]
+  digest = "1:1f0c7ab489b407a7f8f9ad16c25a504d28ab461517a971d341388a56156c1bd7"
   name = "github.com/eapache/go-resiliency"
   packages = ["breaker"]
+  pruneopts = "UT"
   revision = "ea41b0fad31007accc7f806884dcdf3da98b79ce"
   version = "v1.1.0"
 
 [[projects]]
   branch = "master"
+  digest = "1:2b55f08306f24f60dab51e006c1890db08d34ccc1b92c53a08a1a6e7792e3eb8"
   name = "github.com/eapache/go-xerial-snappy"
   packages = ["."]
+  pruneopts = "UT"
   revision = "bb955e01b9346ac19dc29eb16586c90ded99a98c"
 
 [[projects]]
+  digest = "1:444b82bfe35c83bbcaf84e310fb81a1f9ece03edfed586483c869e2c046aef69"
   name = "github.com/eapache/queue"
   packages = ["."]
+  pruneopts = "UT"
   revision = "44cc805cf13205b55f69e14bcb69867d1ae92f98"
   version = "v1.1.0"
 
 [[projects]]
+  digest = "1:17fe264ee908afc795734e8c4e63db2accabaf57326dbf21763a7d6b86096260"
   name = "github.com/golang/protobuf"
   packages = [
     "proto",
     "ptypes",
     "ptypes/any",
     "ptypes/duration",
-    "ptypes/timestamp"
+    "ptypes/timestamp",
   ]
+  pruneopts = "UT"
   revision = "b4deda0973fb4c70b50d226b1af49f3da59f5265"
   version = "v1.1.0"
 
 [[projects]]
   branch = "master"
+  digest = "1:4a0c6bb4805508a6287675fac876be2ac1182539ca8a32468d8128882e9d5009"
   name = "github.com/golang/snappy"
   packages = ["."]
+  pruneopts = "UT"
   revision = "2e65f85255dbc3072edf28d6b5b8efc472979f5a"
 
 [[projects]]
+  digest = "1:8f8811f9be822914c3a25c6a071e93beb4c805d7b026cbf298bc577bc1cc945b"
   name = "github.com/google/uuid"
   packages = ["."]
+  pruneopts = "UT"
   revision = "064e2069ce9c359c118179501254f67d7d37ba24"
   version = "0.2"
 
 [[projects]]
+  digest = "1:e1c2e45310217ec33bb738a5d94f4698733ff576899b22175697a0f967c170ec"
   name = "github.com/influxdata/influxdb"
   packages = [
     "client/v2",
     "models",
-    "pkg/escape"
+    "pkg/escape",
   ]
+  pruneopts = "UT"
   revision = "62ab18a0f43ee342b84debaaae5486b8b2d8682c"
   version = "v1.6.0"
 
 [[projects]]
+  digest = "1:9685bd41ea07a8b31aaab2c11f31a972e31f975dd155d3365a580a9e7eb5c90b"
   name = "github.com/joho/godotenv"
   packages = [
     ".",
-    "autoload"
+    "autoload",
   ]
+  pruneopts = "UT"
   revision = "a79fa1e548e2c689c241d10173efd51e5d689d5b"
   version = "v1.2.0"
 
 [[projects]]
+  digest = "1:a1f5a38c6c82d8f1e8a7b9fb9ea8b125b17188cdfb38f2cd08055ff9b51f5ec4"
+  name = "github.com/microcosm-cc/bluemonday"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "dafebb5b6ff2861a0d69af64991e10866c19be85"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:9d7b1f07e44cada28e6160cb0a808ad2f71f32bd7114793fb0baa302db0e6229"
   name = "github.com/opentracing/opentracing-go"
   packages = [
     ".",
-    "log"
+    "log",
   ]
+  pruneopts = "UT"
   revision = "1949ddbfd147afd4d964a9f00b24eb291e0e7c38"
   version = "v1.0.2"
 
 [[projects]]
+  digest = "1:bda7c09ebcf8a9636eb71cd512f886e8fb1447e7cb242e03e9cb8e457fccca3a"
   name = "github.com/pierrec/lz4"
   packages = [
     ".",
-    "internal/xxh32"
+    "internal/xxh32",
   ]
+  pruneopts = "UT"
   revision = "6b9367c9ff401dbc54fabce3fb8d972e799b702d"
   version = "v2.0.2"
 
 [[projects]]
   branch = "master"
+  digest = "1:c4556a44e350b50a490544d9b06e9fba9c286c21d6c0e47f54f3a9214597298c"
   name = "github.com/rcrowley/go-metrics"
   packages = ["."]
+  pruneopts = "UT"
   revision = "e2704e165165ec55d062f5919b4b29494e9fa790"
 
 [[projects]]
   branch = "master"
+  digest = "1:d3a2b3bc644a0a9300ed19ea0b97e7fe5213d68deed53573c6b4f0c350633590"
   name = "golang.org/x/net"
   packages = [
     "context",
+    "html",
+    "html/atom",
     "http/httpguts",
     "http2",
     "http2/hpack",
     "idna",
     "internal/timeseries",
-    "trace"
+    "trace",
   ]
+  pruneopts = "UT"
   revision = "db08ff08e8622530d9ed3a0e8ac279f6d4c02196"
 
 [[projects]]
+  digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
   name = "golang.org/x/text"
   packages = [
     "collate",
@@ -134,18 +175,22 @@
     "unicode/bidi",
     "unicode/cldr",
     "unicode/norm",
-    "unicode/rangetable"
+    "unicode/rangetable",
   ]
+  pruneopts = "UT"
   revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
   version = "v0.3.0"
 
 [[projects]]
   branch = "master"
+  digest = "1:601e63e7d4577f907118bec825902505291918859d223bce015539e79f1160e3"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
+  pruneopts = "UT"
   revision = "32ee49c4dd805befd833990acba36cb75042378c"
 
 [[projects]]
+  digest = "1:c9c4df9e275979eaa1076a8c5fdec8ce3f0d26ebafc644c2fbbcc964f13c0040"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -171,32 +216,52 @@
     "stats",
     "status",
     "tap",
-    "transport"
+    "transport",
   ]
+  pruneopts = "UT"
   revision = "7a6a684ca69eb4cae85ad0a484f2e531598c047b"
   version = "v1.12.2"
 
 [[projects]]
+  digest = "1:56fe6bb74afe4eade838c52a12111f49c4ea9f4b25e6194a7dde4194c2f74b50"
   name = "gopkg.in/couchbase/gocbcore.v7"
   packages = ["."]
+  pruneopts = "UT"
   revision = "b83e7ae1df3e664ec54638717803154f12223de2"
   version = "v7.1.1"
 
 [[projects]]
+  digest = "1:96e2cc0e8ea627e534b8eb0b5c1ef0f3902472ab14d912c856da98b754762345"
   name = "gopkg.in/couchbaselabs/gocbconnstr.v1"
   packages = ["."]
+  pruneopts = "UT"
   revision = "710456e087a6d497e87f41d0a9d98d6a75672186"
   version = "v1.0.1"
 
 [[projects]]
+  digest = "1:ba6eeb69e706c4fa641a267d608c6daf84cca8dcdf077c71f1c6719eee4e1512"
   name = "gopkg.in/couchbaselabs/jsonx.v1"
   packages = ["."]
+  pruneopts = "UT"
   revision = "5b7baa20429a46a5543ee259664cc86502738cad"
   version = "v1.0.0"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0a8b118f9ab14829fa8ceb954e7d3bab48af018711daa859fe978d9dd3561488"
+  input-imports = [
+    "github.com/Shopify/sarama",
+    "github.com/couchbase/gocb",
+    "github.com/golang/protobuf/proto",
+    "github.com/golang/protobuf/ptypes",
+    "github.com/golang/protobuf/ptypes/timestamp",
+    "github.com/influxdata/influxdb/client/v2",
+    "github.com/joho/godotenv/autoload",
+    "github.com/microcosm-cc/bluemonday",
+    "golang.org/x/net/context",
+    "google.golang.org/grpc",
+    "google.golang.org/grpc/codes",
+    "google.golang.org/grpc/status",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1
