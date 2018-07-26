@@ -108,7 +108,7 @@ Then run `docker-compose up -d` and proceed to checkout the new changes.
 At this point, if you have had no error messages come, everything is standing up. Visit the location you served the front-end to (127.0.0.1:9080 by default) in your browser and enter in your clientID. Settings can be found by clicking the hamburger icon on the top left.
 
 Now lets try sending it some test data. Edit the doppler-events/cmd/loadtest/loadTest.go on line 27 add your clientIDs.
-Also edit line 206 in doppler-events/cmd/testsend/testSend.go.
+Also edit lines 128 and 258 in doppler-events/cmd/testsend/testSend.go.
 
 To load test the API, run `go run cmd/loadtest/loadTest.go`. This will not clean up your database.
 

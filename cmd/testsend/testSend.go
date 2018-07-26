@@ -64,6 +64,41 @@ func Random() (float64, float64) {
 	return lat, lng
 }
 
+func getLocation(count int) (float64, float64) {
+	var lng, lat float64
+	switch {
+	case count < 200:
+		lat, lng = Northeast()
+	case count < 400:
+		if count%5 == 0 {
+			lat, lng = Northeast()
+		} else {
+			lat, lng = Southeast()
+		}
+	case count < 600:
+		if count%5 == 0 {
+			lat, lng = Southeast()
+		} else if count%10 == 0 {
+			lat, lng = Northeast()
+		} else {
+			lat, lng = Midwest()
+		}
+	case count < 1000:
+		if count%5 == 0 {
+			lat, lng = Midwest()
+		} else if count%10 == 0 {
+			lat, lng = Southeast()
+		} else if count%15 == 0 {
+			lat, lng = Northeast()
+		} else {
+			lat, lng = West()
+		}
+	default:
+		lat, lng = Random()
+	}
+	return lat, lng
+}
+
 //Simulate creates data points that simulates activity sweeping across America from East to West coast
 func Simulate() {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -72,35 +107,7 @@ func Simulate() {
 		time.Sleep(10 * time.Millisecond)
 		clientID := clientIDs[r.Int31n(int32(len(clientIDs)))] //pick random client from clientIDs slice
 		eventID := eventIDs[r.Int31n(int32(len(eventIDs)))]    //pick random event from eventIDs slice
-		if count < 200 {
-			lat, lng = Northeast()
-		} else if count < 400 {
-			if count%5 == 0 {
-				lat, lng = Northeast()
-			} else {
-				lat, lng = Southeast()
-			}
-		} else if count < 600 {
-			if count%5 == 0 {
-				lat, lng = Southeast()
-			} else if count%10 == 0 {
-				lat, lng = Northeast()
-			} else {
-				lat, lng = Midwest()
-			}
-		} else if count < 1000 {
-			if count%5 == 0 {
-				lat, lng = Midwest()
-			} else if count%10 == 0 {
-				lat, lng = Southeast()
-			} else if count%15 == 0 {
-				lat, lng = Northeast()
-			} else {
-				lat, lng = West()
-			}
-		} else {
-			lat, lng = Random()
-		}
+		lat, lng = getLocation(count)
 		resp, err := sendRequest(c, clientID, eventID, lat, lng) //call function that prepares data to send to server
 		//lo any error
 		if err != nil {
@@ -116,8 +123,8 @@ func Simulate() {
 
 //History generates data points with timestamps from the past 24 hours, this is intended to simply create test data for playback functionality
 func History() {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-
+	//	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	var lat, lng float64
 	clientID := "client1"
 	eventID := "historyTestLogin"
 	count := -7
@@ -129,8 +136,15 @@ func History() {
 			dateTime, _ := ptypes.TimestampProto(theTime)
 			dataSet := make(map[string]string, 2)
 			x--
-			lat := (r.Float64() - .5) * 180 //get random lat
-			lng := (r.Float64() - .5) * 360 //get random lng
+			switch {
+			case count < -5:
+				lat, lng = Midwest()
+			case count < -3:
+				lat, lng = West()
+			default:
+				lat, lng = Random()
+			}
+
 			dataSet["lat"] = strconv.FormatFloat(lat, 'g', -1, 64)
 			dataSet["lng"] = strconv.FormatFloat(lng, 'g', -1, 64)
 			if !stop {
