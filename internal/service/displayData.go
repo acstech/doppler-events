@@ -26,7 +26,7 @@ func (s *Service) DisplayData(ctx context.Context, in *pb.DisplayRequest) (*pb.D
 		}
 		return nil, status.Error(codes.InvalidArgument, "401: Invalid input: "+errorMSG[:len(errorMSG)-2])
 	}
-	//converting protobuf timestamp to to a string in format yyyy-MM-DDTHH:mm:ss.SSSZ
+	// converting protobuf timestamp to to a string in format yyyy-MM-DDTHH:mm:ss.SSSZ
 	ts := ptype.TimestampString(in.DateTime)
 	//make sure that the timestamp is before now
 	now, err := ptype.TimestampProto(time.Now())

@@ -1,16 +1,26 @@
 package service
 
 import (
+	"fmt"
 	"reflect"
+	"regexp"
 	"strconv"
 
 	pb "github.com/acstech/doppler-events/rpc/eventAPI"
+	"github.com/microcosm-cc/bluemonday"
 )
 
 //verifyConstraints checks the attributes for in incoming request, verfies valid data
 func (*Service) verifyConstraints(req *pb.DisplayRequest) ErrorRes {
 	var errRes ErrorRes
 	//check length of EventId
+	// Sanitizing eventID
+	bm := bluemonday.UGCPolicy()
+	reg, err := regexp.Compile("[^a-zA-Z0-9]+")
+	if err != nil {
+		fmt.Errorf("Regex Compile Error: %v", err)
+	}
+	req.EventId = reg.ReplaceAllString(bm.Sanitize(req.EventId), "")
 	if len(req.EventId) > 35 {
 		errRes.errMes = append(errRes.errMes, "EventId must be less than 35 characters")
 	}
