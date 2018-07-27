@@ -70,7 +70,7 @@ Create an account with a username and password of your choice.
 
 Go to Buckets and Add Bucket (Top right)
 
-Create a bucket (save the bucket name you give it somewhere) and configure the memory to your liking. 256 MB is recommended.
+Create a bucket (save the bucket name you give it somewhere) and configure the memory to your liking. 256 MB is recommended for Data Service Memory.
 
 Create a user that only had read and write permissions on that same bucket using the security tab. (Located under Security->Add User->Data Roles->Data Writer and Data Roles-> Data Reader)
 
